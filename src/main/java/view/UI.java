@@ -7,7 +7,7 @@ public class UI extends JFrame {
     private final JPanel titlePanel = new JPanel(new BorderLayout());
     private final JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
     private final JPanel configPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-    private final JTextField pageSizeField = new JTextField("default value");
+    private final JTextField physicalMemSizeField = new JTextField("default value");
     private final JTextField offsetBitsField = new JTextField("default value");
     private final JTextField virtualMemSizeField = new JTextField("default value");
     private final JTextField tlbEntriesField = new JTextField("default value");
@@ -45,6 +45,7 @@ public class UI extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
 
         createResetPanel();
+        this.setVisible(true);
     }
 
     private void setUpUI() {
@@ -83,12 +84,12 @@ public class UI extends JFrame {
 
     private void createConfigurationPanel() {
         configPanel.setBorder(BorderFactory.createTitledBorder("Simulation Configuration"));
-        configPanel.add(new JLabel("Virtual Memory Size"));
-        configPanel.add(pageSizeField);
-        configPanel.add(new JLabel("Physical Memory Size"));
-        configPanel.add(offsetBitsField);
-        configPanel.add(new JLabel("Number of Offset Bits"));
+        configPanel.add(new JLabel("Virtual Memory Size (in bits)"));
         configPanel.add(virtualMemSizeField);
+        configPanel.add(new JLabel("Physical Memory Size (in bits)"));
+        configPanel.add(physicalMemSizeField);
+        configPanel.add(new JLabel("Number of Offset Bits"));
+        configPanel.add(offsetBitsField);
         configPanel.add(new JLabel("Number of TLB Entries"));
         configPanel.add(tlbEntriesField);
 
@@ -113,7 +114,6 @@ public class UI extends JFrame {
         virtualAddressHex.setEditable(false);
         addressPanel.add(virtualAddressHex, gbc);
 
-        // Spacer Row
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 3;
@@ -190,7 +190,11 @@ public class UI extends JFrame {
     private void createInfoPanel() {
         infoPanel.setBorder(BorderFactory.createTitledBorder("Simulation Steps"));
         infoArea.setEditable(false);
-        infoPanel.add(infoArea, BorderLayout.CENTER);
+        infoArea.setWrapStyleWord(true);
+        infoArea.setFont((new Font("Serif", Font.BOLD, 16)));
+        JScrollPane areaScrollPane = new JScrollPane(infoArea);
+        areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        infoPanel.add(areaScrollPane, BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel(new GridLayout(1, 4, 10, 10));
         buttonPanel.add(new Label(" "));
         buttonPanel.add(nextStep);
@@ -210,10 +214,43 @@ public class UI extends JFrame {
         add(resetPanel, BorderLayout.SOUTH);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            UI frame = new UI();
-            frame.setVisible(true);
-        });
+    public JTextField getPhysicalMemSizeField() {
+        return physicalMemSizeField;
+    }
+
+    public JTextField getOffsetBitsField() {
+        return offsetBitsField;
+    }
+
+    public JTextField getVirtualMemSizeField() {
+        return virtualMemSizeField;
+    }
+
+    public JTextField getTlbEntriesField() {
+        return tlbEntriesField;
+    }
+
+    public JButton getValidateButton() {
+        return validateButton;
+    }
+
+    public JButton getStartButton() {
+        return startButton;
+    }
+
+    public JTable getPageTable() {
+        return pageTable;
+    }
+
+    public JTable getTlbTable() {
+        return tlbTable;
+    }
+
+    public JTable getMemoryTable() {
+        return memoryTable;
+    }
+
+    public JTextArea getInfoArea() {
+        return infoArea;
     }
 }

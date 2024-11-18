@@ -1,14 +1,15 @@
 package view;
 
 import logic.SimulationManager;
-import model.PageTable;
-import model.PageTableEntry;
-import model.PhysicalMemory;
-import model.TLB;
+import model.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class UIController {
     private final UI ui;
@@ -18,6 +19,9 @@ public class UIController {
         this.simulationManager = simulationManager;
         validateInput();
         startSimulation();
+        generateScenarios();
+        loadInstructionToSimulation();
+        nextStep();
     }
 
     private HashMap<String, Integer> getInputData() {
@@ -129,7 +133,7 @@ public class UIController {
         ui.getStartButton().addActionListener(e -> {
             HashMap<String, Integer> inputData = getInputData();
             String startInfo = simulationManager.initialiseSimulation(inputData);
-            ui.getInfoArea().insert(startInfo, 0);
+            ui.getInfoArea().setText(startInfo);
             fillPageTable();
             fillTLB();
             fillPhysicalMemoryTable();
@@ -185,5 +189,127 @@ public class UIController {
         }
 
         ui.getMemoryTable().setModel(model);
+    }
+
+    private void generateScenarios() {
+        ui.getSeeScenario().addActionListener(e -> {
+            List<Integer> addresses = new ArrayList<>();
+            if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in TLB")) {
+                addresses.add(simulationManager.generateMappedAddress(true));
+                addresses.add(simulationManager.generateMappedAddress(true));
+            } else if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in PageTable")) {
+                System.out.println("Next");
+            } else if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find on Disk")){
+                System.out.println("Next");
+            }
+
+            displayScenarios(addresses);
+        });
+    }
+
+    private void displayScenarios(List<Integer> addresses) {
+        boolean isLoadOperation = true;
+        StringBuilder sb = new StringBuilder();
+        for(Integer address: addresses) {
+            String addressHex = String.format("0x%02X", address);
+            if(isLoadOperation) {
+                sb.append("load R0, ").append(addressHex).append("\n");
+                isLoadOperation = false;
+            } else {
+                sb.append("store R0, ").append(addressHex).append("\n");
+                isLoadOperation = true;
+            }
+        }
+
+        ui.getInstructions().setText(String.valueOf(sb));
+    }
+
+    private void loadInstructionToSimulation() {
+        ui.getLoadInstruction().addActionListener(e -> {
+            if(!ui.getInstructions().getText().isEmpty()) {
+                String[] instructions = ui.getInstructions().getText().split("\n");
+                simulationManager.setInstructions(List.of(instructions));
+
+                VirtualAddress virtualAddress = simulationManager.getNextAddress();
+                ui.getVirtualAddressHex().setText(virtualAddress.getValue());
+                ui.getPageNumber().setText(String.valueOf(virtualAddress.getPageNumber()));
+                ui.getOffset().setText(String.valueOf(virtualAddress.getOffset()));
+
+            } else {
+                JOptionPane.showMessageDialog(ui, "There are no more instructions. Please load another set.", "Error - load instructions", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+
+    private int currentStep = 0;
+    private void nextStep() {
+        ui.getNextStep().addActionListener(e -> handleNextStep());
+    }
+
+    int pageNr = 0;
+    boolean pageInTLB;
+    int physicalPageNumber = 0;
+    int offset = 0;
+    private void handleNextStep() {
+
+        switch (currentStep) {
+            case 0 -> {
+                ui.getInfoArea().setText("\nWe search for the page in the TLB.");
+                ui.getTlbTable().setBackground(Color.YELLOW);
+                ui.getPageNumber().setBackground(Color.YELLOW);
+            }
+
+            case 1 -> {
+                pageNr = Integer.parseInt(ui.getPageNumber().getText());
+                pageInTLB = simulationManager.checkPageInTLB(pageNr);
+
+                if (pageInTLB) {
+                    ui.getInfoArea().setText("\nPage was found in the TLB.");
+                    ui.getInfoArea().setForeground(Color.GREEN); // Change text color to green
+                    highlightTLBEntry(pageNr); // Your function to highlight TLB entry
+                } else {
+                    ui.getInfoArea().setText("\nPage was not found in the TLB.");
+                    ui.getInfoArea().setForeground(Color.RED);
+                }
+            }
+
+            case 2 -> {
+                // Step 3: Highlight corresponding physical memory page
+                physicalPageNumber = simulationManager.getPhysicalPage(pageNr); // Your logic to fetch physical page
+                ui.getInfoArea().append("\nThe corresponding physical page is " + physicalPageNumber + ".");
+                highlightPhysicalMemoryPage(physicalPageNumber); // Your function to highlight memory
+
+            }
+
+            case 3 -> {
+                // Step 4: Calculate and display the value of the address
+                offset = Integer.parseInt(ui.getOffset().getText());
+                int physicalAddress = simulationManager.calculatePhysicalAddress(physicalPageNumber, offset); // Your logic
+                String value = simulationManager.getValueFromPhysicalMemory(physicalPageNumber, offset); // Fetch value
+                ui.getInfoArea().append("\nValue at address " + physicalAddress + " is " + value + ".");
+                //ui.getPageNumberHex().setText(value); // Set the value in the register or field
+            }
+        }
+        currentStep ++;
+    }
+
+    private void highlightTLBEntry(int pageNumber) {
+        for (int i = 0; i < ui.getTlbTable().getRowCount(); i++) {
+            if ((int) ui.getTlbTable().getValueAt(i, 1) == pageNumber) {
+                ui.getTlbTable().setSelectionBackground(Color.GREEN);
+                ui.getTlbTable().setRowSelectionInterval(i, i);
+                break;
+            }
+        }
+    }
+
+    private void highlightPhysicalMemoryPage(int physicalPageNumber) {
+        for (int i = 0; i < ui.getMemoryTable().getRowCount(); i++) {
+            if ((int) ui.getMemoryTable().getValueAt(i, 0) == physicalPageNumber) {
+                ui.getMemoryTable().setSelectionBackground(Color.GREEN);
+                ui.getMemoryTable().setRowSelectionInterval(i, i);
+                break;
+            }
+        }
     }
 }

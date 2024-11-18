@@ -38,4 +38,8 @@ public class PhysicalMemory {
     public List<List<String>> getMemory() {
         return memory;
     }
+
+    public String retrieveData(int pageNr, int offset) {
+        return memory.get(pageNr).get(offset);
+    }
 }

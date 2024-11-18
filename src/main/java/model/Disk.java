@@ -22,7 +22,7 @@ public class Disk {
         for(Integer nr: this.virtualPages) {
             List<String> content = new ArrayList<>();
             for(int i = 0; i < this.pageSize; i++) {
-                int randomValue = random.nextInt(this.dataSize);
+                int randomValue = random.nextInt(this.dataSize - 1);
                 content.add(String.format("0x%02X", randomValue));
             }
 

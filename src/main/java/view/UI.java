@@ -7,20 +7,22 @@ public class UI extends JFrame {
     private final JPanel titlePanel = new JPanel(new BorderLayout());
     private final JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
     private final JPanel configPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-    private final JTextField physicalMemSizeField = new JTextField("default value");
-    private final JTextField offsetBitsField = new JTextField("default value");
-    private final JTextField virtualMemSizeField = new JTextField("default value");
-    private final JTextField tlbEntriesField = new JTextField("default value");
+    private final JTextField physicalMemSizeField = new JTextField("6");
+    private final JTextField offsetBitsField = new JTextField("2");
+    private final JTextField virtualMemSizeField = new JTextField("8");
+    private final JTextField tlbEntriesField = new JTextField("5");
     private final JButton validateButton = new JButton("Validate Inputs");
     private final JButton startButton = new JButton("Start Simulation");
     private final JPanel addressPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+    private final JTextField virtualAddressHex = new JTextField();
+    private final JTextField pageNumber = new JTextField();
+    private final JTextField offset = new JTextField();
     private final JPanel scenariosPanel = new JPanel(new GridBagLayout());
     private final JPanel loadInstructionPanel = new JPanel(new BorderLayout());
-    private final JComboBox<String> scenarioComboBox = new JComboBox<>(new String[]{"Scenario 1", "Scenario 2", "Scenario 3"});
+    private final JComboBox<String> scenarioComboBox = new JComboBox<>(new String[]{"Find in TLB", "Find in PageTable", "Find on Disk"});
     private final JButton seeScenario = new JButton("See Instructions");
     private final JPanel tlbPanel = new JPanel(new BorderLayout());
     private final String[] tlbColumnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
-
     private final JTable tlbTable = new JTable(new Object[10][3], tlbColumnNames);
     private final JButton loadInstruction = new JButton("Load Instruction");
     private final JTextArea instructions = new JTextArea();
@@ -108,7 +110,6 @@ public class UI extends JFrame {
         addressPanel.add(new JLabel("Virtual Address:"), gbc);
 
         gbc.gridx = 1;
-        JTextField virtualAddressHex = new JTextField();
         virtualAddressHex.setMinimumSize(new Dimension(250, 25));
         virtualAddressHex.setPreferredSize(new Dimension(250, 25));
         virtualAddressHex.setEditable(false);
@@ -129,18 +130,17 @@ public class UI extends JFrame {
 
         gbc.gridy = 3;
         gbc.gridx = 0;
-        JTextField pageNumberHex = new JTextField();
-        pageNumberHex.setMinimumSize(new Dimension(250, 25));
-        pageNumberHex.setPreferredSize(new Dimension(250, 25));
-        pageNumberHex.setEditable(false);
-        addressPanel.add(pageNumberHex, gbc);
+
+        pageNumber.setMinimumSize(new Dimension(250, 25));
+        pageNumber.setPreferredSize(new Dimension(250, 25));
+        pageNumber.setEditable(false);
+        addressPanel.add(pageNumber, gbc);
 
         gbc.gridx = 1;
-        JTextField offsetHex = new JTextField();
-        offsetHex.setMinimumSize(new Dimension(250, 25));
-        offsetHex.setPreferredSize(new Dimension(250, 25));
-        offsetHex.setEditable(false);
-        addressPanel.add(offsetHex, gbc);
+        offset.setMinimumSize(new Dimension(250, 25));
+        offset.setPreferredSize(new Dimension(250, 25));
+        offset.setEditable(false);
+        addressPanel.add(offset, gbc);
     }
 
 
@@ -252,5 +252,41 @@ public class UI extends JFrame {
 
     public JTextArea getInfoArea() {
         return infoArea;
+    }
+
+    public JComboBox<String> getScenarioComboBox() {
+        return scenarioComboBox;
+    }
+
+    public JButton getSeeScenario() {
+        return seeScenario;
+    }
+
+    public JTextArea getInstructions() {
+        return instructions;
+    }
+
+    public JButton getLoadInstruction() {
+        return loadInstruction;
+    }
+
+    public JTextField getVirtualAddressHex() {
+        return virtualAddressHex;
+    }
+
+    public JTextField getPageNumber() {
+        return pageNumber;
+    }
+
+    public JTextField getOffset() {
+        return offset;
+    }
+
+    public JButton getNextStep() {
+        return nextStep;
+    }
+
+    public JButton getResetSimulation() {
+        return resetSimulation;
     }
 }

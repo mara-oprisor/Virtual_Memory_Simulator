@@ -17,6 +17,7 @@ public class SimulationManager {
     private TLB tlb;
     private PhysicalMemory physicalMemory;
     private Disk disk;
+    private List<Instruction> instructions = new ArrayList<>();
 
     public String initialiseSimulation(HashMap<String, Integer> inputData) {
         this.vmSize = (int) Math.pow(2, inputData.get("vmSize"));
@@ -124,6 +125,49 @@ public class SimulationManager {
         return pages;
     }
 
+    private List<Integer> extractMappedPages() {
+        List<Integer> pages = new ArrayList<>();
+        for(PageTableEntry entry: pageTable.getEntries()) {
+            if(entry.getPhysicalPageNr() != -1) {
+                pages.add(entry.getVirtualPageNr());
+            }
+        }
+
+        return pages;
+    }
+
+    public int generateMappedAddress(boolean fromTLB) {
+        List<Integer> mappedAddresses = new ArrayList<>();
+        Random random = new Random();
+
+        List<Integer> TLBPages = new ArrayList<>();
+        for(PageTableEntry entry: tlb.getEntries()) {
+            int pageNr = entry.getVirtualPageNr();
+            TLBPages.add(pageNr);
+        }
+
+        if(fromTLB) {
+            for(Integer pageNr: TLBPages) {
+                for(int offset = 0; offset < pageSize; offset++) {
+                    int address = pageNr * pageSize + offset;
+                    mappedAddresses.add(address);
+                }
+            }
+        } else {
+            List<Integer> pages = extractMappedPages();
+            for(Integer pageNr: pages) {
+                if(!TLBPages.contains(pageNr)) {
+                    for(int offset = 0; offset < pageSize; offset++) {
+                        int address = pageNr * pageSize + offset;
+                        mappedAddresses.add(address);
+                    }
+                }
+            }
+        }
+
+        return mappedAddresses.get(random.nextInt(mappedAddresses.size()));
+    }
+
 
     public PageTable getPageTable() {
         return pageTable;
@@ -135,5 +179,32 @@ public class SimulationManager {
 
     public PhysicalMemory getPhysicalMemory() {
         return physicalMemory;
+    }
+
+    public void setInstructions(List<String> instructions) {
+        this.instructions.clear();
+        for(String instruction: instructions) {
+            this.instructions.add(Instruction.parseInstruction(instruction, this.pageSize));
+        }
+    }
+
+    public VirtualAddress getNextAddress() {
+        return this.instructions.getFirst().getVirtualAddress();
+    }
+
+    public boolean checkPageInTLB(int pageNr) {
+        return tlb.isInTLB(pageNr);
+    }
+
+    public int getPhysicalPage(int pageNr) {
+        return tlb.getPhysicalPage(pageNr);
+    }
+
+    public int calculatePhysicalAddress(int pageNr, int offset) {
+        return pageNr * pageSize + offset;
+    }
+
+    public String getValueFromPhysicalMemory(int physicalPageNumber, int offset) {
+        return physicalMemory.retrieveData(physicalPageNumber, offset);
     }
 }

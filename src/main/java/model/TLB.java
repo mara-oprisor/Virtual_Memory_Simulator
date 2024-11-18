@@ -19,4 +19,24 @@ public class TLB {
     public List<PageTableEntry> getEntries() {
         return entries;
     }
+
+    public boolean isInTLB(int pageNr) {
+        for(int i = 0; i < nrOfEntries; i++) {
+            if(entries.get(i).getVirtualPageNr() == pageNr) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int getPhysicalPage(int pageNr) {
+        for(int i = 0; i < nrOfEntries; i++) {
+            if(entries.get(i).getVirtualPageNr() == pageNr) {
+                return entries.get(i).getPhysicalPageNr();
+            }
+        }
+
+        return -2;
+    }
 }

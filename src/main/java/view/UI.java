@@ -1,6 +1,7 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class UI extends JFrame {
@@ -212,6 +213,47 @@ public class UI extends JFrame {
         JPanel resetPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         resetPanel.add(resetSimulation);
         add(resetPanel, BorderLayout.SOUTH);
+    }
+
+    public void highlightTLBEntry(int pageNumber) {
+        for (int i = 0; i < tlbTable.getRowCount(); i++) {
+            if ((int) tlbTable.getValueAt(i, 1) == pageNumber) {
+                tlbTable.setSelectionBackground(Color.GREEN);
+                tlbTable.setRowSelectionInterval(i, i);
+                break;
+            }
+        }
+    }
+
+    public void highlightPageTableEntry(int pageNumber) {
+        for (int i = 0; i < pageTable.getRowCount(); i++) {
+            if ((int) pageTable.getValueAt(i, 1) == pageNumber) {
+                pageTable.setSelectionBackground(Color.GREEN);
+                pageTable.setRowSelectionInterval(i, i);
+                break;
+            }
+        }
+    }
+
+    public void highlightPhysicalMemoryPage(int physicalPageNumber) {
+        for (int i = 0; i < memoryTable.getRowCount(); i++) {
+            if ((int) memoryTable.getValueAt(i, 0) == physicalPageNumber) {
+                memoryTable.setSelectionBackground(Color.GREEN);
+                memoryTable.setRowSelectionInterval(i, i);
+                break;
+            }
+        }
+    }
+
+    public void resetHighlights(JTable table) {
+        table.clearSelection();
+        table.setSelectionBackground(UIManager.getColor("Table.selectionBackground"));
+        table.setSelectionForeground(UIManager.getColor("Table.selectionForeground"));
+        table.repaint();
+    }
+
+    public void resetTable(JTable table, Object[][] data, Object[] columnNames) {
+        table.setModel(new DefaultTableModel(data, columnNames));
     }
 
     public JTextField getPhysicalMemSizeField() {

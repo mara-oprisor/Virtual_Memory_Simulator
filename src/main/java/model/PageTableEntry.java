@@ -4,8 +4,8 @@ import java.sql.Time;
 
 public class PageTableEntry {
     private int index;
-    private int virtualPageNr;
-    private int physicalPageNr;
+    private final int virtualPageNr;
+    private final int physicalPageNr;
     private Time enterTime;
 
     public PageTableEntry(int index, int virtualPageNr, int physicalPageNr, boolean isMapped) {

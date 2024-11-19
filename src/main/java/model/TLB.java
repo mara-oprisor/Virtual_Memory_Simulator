@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TLB {
-    private int nrOfEntries;
-    private List<PageTableEntry> entries;
+    private final int nrOfEntries;
+    private final List<PageTableEntry> entries;
 
     public TLB(int nrOfEntries) {
         this.nrOfEntries = nrOfEntries;
@@ -14,10 +14,6 @@ public class TLB {
 
     public void addEntry(PageTableEntry entry) {
         entries.add(entry);
-    }
-
-    public List<PageTableEntry> getEntries() {
-        return entries;
     }
 
     public boolean isInTLB(int pageNr) {
@@ -38,5 +34,9 @@ public class TLB {
         }
 
         return -2;
+    }
+
+    public List<PageTableEntry> getEntries() {
+        return entries;
     }
 }

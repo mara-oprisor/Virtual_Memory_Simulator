@@ -1,27 +1,35 @@
 package view;
 
+import logic.ScenariosManager;
 import logic.SimulationManager;
+import logic.state.IdleState;
+import logic.state.State;
+import logic.state.TLBSearchState;
 import model.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 public class UIController {
     private final UI ui;
     private final SimulationManager simulationManager;
+    private final ScenariosManager scenariosManager;
+    private State currentState;
+
     public UIController(UI ui, SimulationManager simulationManager) {
         this.ui = ui;
         this.simulationManager = simulationManager;
+        this.scenariosManager = new ScenariosManager(simulationManager);
+        this.currentState = new IdleState();
         validateInput();
         startSimulation();
         generateScenarios();
         loadInstructionToSimulation();
         nextStep();
+        resetSimulation();
     }
 
     private HashMap<String, Integer> getInputData() {
@@ -145,7 +153,7 @@ public class UIController {
         String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
-        for(PageTableEntry entry : pageTable.getEntries()) {
+        for (PageTableEntry entry : pageTable.getEntries()) {
             Object[] row = {
                     entry.getIndex(),
                     entry.getVirtualPageNr(),
@@ -162,7 +170,7 @@ public class UIController {
         String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
-        for(PageTableEntry entry : tlb.getEntries()) {
+        for (PageTableEntry entry : tlb.getEntries()) {
             Object[] row = {
                     entry.getIndex(),
                     entry.getVirtualPageNr(),
@@ -180,7 +188,7 @@ public class UIController {
         String[] columnNames = {"Physical Page Number", "Contents"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
-        for(int i = 0; i < physicalMemory.getMemory().size(); i++) {
+        for (int i = 0; i < physicalMemory.getMemory().size(); i++) {
             Object[] row = {
                     i,
                     physicalMemory.getMemory().get(i)
@@ -193,44 +201,27 @@ public class UIController {
 
     private void generateScenarios() {
         ui.getSeeScenario().addActionListener(e -> {
-            List<Integer> addresses = new ArrayList<>();
-            if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in TLB")) {
-                addresses.add(simulationManager.generateMappedAddress(true));
-                addresses.add(simulationManager.generateMappedAddress(true));
-            } else if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in PageTable")) {
-                System.out.println("Next");
-            } else if(Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find on Disk")){
-                System.out.println("Next");
+            int typeInstruction = -1;
+            if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in TLB")) {
+                typeInstruction = 0;
+            } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in PageTable")) {
+                typeInstruction = 1;
+            } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find on Disk")) {
+                typeInstruction = 2;
             }
 
-            displayScenarios(addresses);
+            String instructions = scenariosManager.generateInstructions(typeInstruction);
+            ui.getInstructions().setText(instructions);
+
+            scenariosManager.setInstructions(instructions);
         });
-    }
-
-    private void displayScenarios(List<Integer> addresses) {
-        boolean isLoadOperation = true;
-        StringBuilder sb = new StringBuilder();
-        for(Integer address: addresses) {
-            String addressHex = String.format("0x%02X", address);
-            if(isLoadOperation) {
-                sb.append("load R0, ").append(addressHex).append("\n");
-                isLoadOperation = false;
-            } else {
-                sb.append("store R0, ").append(addressHex).append("\n");
-                isLoadOperation = true;
-            }
-        }
-
-        ui.getInstructions().setText(String.valueOf(sb));
     }
 
     private void loadInstructionToSimulation() {
         ui.getLoadInstruction().addActionListener(e -> {
-            if(!ui.getInstructions().getText().isEmpty()) {
-                String[] instructions = ui.getInstructions().getText().split("\n");
-                simulationManager.setInstructions(List.of(instructions));
-
-                VirtualAddress virtualAddress = simulationManager.getNextAddress();
+            currentState = new TLBSearchState();
+            VirtualAddress virtualAddress = scenariosManager.loadInstruction();
+            if (virtualAddress != null) {
                 ui.getVirtualAddressHex().setText(virtualAddress.getValue());
                 ui.getPageNumber().setText(String.valueOf(virtualAddress.getPageNumber()));
                 ui.getOffset().setText(String.valueOf(virtualAddress.getOffset()));
@@ -241,75 +232,56 @@ public class UIController {
         });
     }
 
-    private int currentStep = 0;
     private void nextStep() {
-        ui.getNextStep().addActionListener(e -> handleNextStep());
+        ui.getNextStep().addActionListener(e -> {
+            currentState.execute(this);
+        });
     }
 
-    int pageNr = 0;
-    boolean pageInTLB;
-    int physicalPageNumber = 0;
-    int offset = 0;
-    private void handleNextStep() {
+    private void resetSimulation() {
+        ui.getResetSimulation().addActionListener(e -> {
+            ui.getVirtualMemSizeField().setText("8");
+            ui.getPhysicalMemSizeField().setText("6");
+            ui.getOffsetBitsField().setText("2");
+            ui.getTlbEntriesField().setText("5");
 
-        switch (currentStep) {
-            case 0 -> {
-                ui.getInfoArea().setText("\nWe search for the page in the TLB.");
-                ui.getTlbTable().setBackground(Color.YELLOW);
-                ui.getPageNumber().setBackground(Color.YELLOW);
-            }
+            ui.getVirtualAddressHex().setText("");
+            ui.getPageNumber().setText("");
+            ui.getOffset().setText("");
 
-            case 1 -> {
-                pageNr = Integer.parseInt(ui.getPageNumber().getText());
-                pageInTLB = simulationManager.checkPageInTLB(pageNr);
+            ui.getInfoArea().setForeground(Color.BLACK);
+            ui.getInfoArea().setText("Please Configure Memory Settings.");
 
-                if (pageInTLB) {
-                    ui.getInfoArea().setText("\nPage was found in the TLB.");
-                    ui.getInfoArea().setForeground(Color.GREEN); // Change text color to green
-                    highlightTLBEntry(pageNr); // Your function to highlight TLB entry
-                } else {
-                    ui.getInfoArea().setText("\nPage was not found in the TLB.");
-                    ui.getInfoArea().setForeground(Color.RED);
-                }
-            }
+            ui.resetTable(ui.getTlbTable(), new Object[10][3], new String[]{"Index", "Virtual Page Number", "Physical Page Number"});
+            ui.resetTable(ui.getPageTable(), new Object[10][3], new String[]{"Index", "Virtual Page Number", "Physical Page Number"});
+            ui.resetTable(ui.getMemoryTable(), new Object[10][2], new String[]{"Physical Page Number", "Contents"});
 
-            case 2 -> {
-                // Step 3: Highlight corresponding physical memory page
-                physicalPageNumber = simulationManager.getPhysicalPage(pageNr); // Your logic to fetch physical page
-                ui.getInfoArea().append("\nThe corresponding physical page is " + physicalPageNumber + ".");
-                highlightPhysicalMemoryPage(physicalPageNumber); // Your function to highlight memory
+            ui.getInstructions().setText("");
 
-            }
+            currentState = new IdleState();
 
-            case 3 -> {
-                // Step 4: Calculate and display the value of the address
-                offset = Integer.parseInt(ui.getOffset().getText());
-                int physicalAddress = simulationManager.calculatePhysicalAddress(physicalPageNumber, offset); // Your logic
-                String value = simulationManager.getValueFromPhysicalMemory(physicalPageNumber, offset); // Fetch value
-                ui.getInfoArea().append("\nValue at address " + physicalAddress + " is " + value + ".");
-                //ui.getPageNumberHex().setText(value); // Set the value in the register or field
-            }
-        }
-        currentStep ++;
+            ui.resetHighlights(ui.getPageTable());
+            ui.resetHighlights(ui.getTlbTable());
+            ui.resetHighlights(ui.getMemoryTable());
+            ui.getTlbTable().setBackground(Color.WHITE);
+            ui.getPageNumber().setBackground(Color.WHITE);
+            ui.getPageTable().setBackground(Color.WHITE);
+        });
     }
 
-    private void highlightTLBEntry(int pageNumber) {
-        for (int i = 0; i < ui.getTlbTable().getRowCount(); i++) {
-            if ((int) ui.getTlbTable().getValueAt(i, 1) == pageNumber) {
-                ui.getTlbTable().setSelectionBackground(Color.GREEN);
-                ui.getTlbTable().setRowSelectionInterval(i, i);
-                break;
-            }
-        }
+    public UI getUi() {
+        return ui;
     }
 
-    private void highlightPhysicalMemoryPage(int physicalPageNumber) {
-        for (int i = 0; i < ui.getMemoryTable().getRowCount(); i++) {
-            if ((int) ui.getMemoryTable().getValueAt(i, 0) == physicalPageNumber) {
-                ui.getMemoryTable().setSelectionBackground(Color.GREEN);
-                ui.getMemoryTable().setRowSelectionInterval(i, i);
-                break;
-            }
-        }
+    public void setCurrentState(State currentState) {
+        this.currentState = currentState;
+    }
+
+    public SimulationManager getSimulationManager() {
+        return simulationManager;
+    }
+
+    public ScenariosManager getScenariosManager() {
+        return scenariosManager;
     }
 }

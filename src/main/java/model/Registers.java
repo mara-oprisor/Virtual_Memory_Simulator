@@ -1,16 +1,16 @@
 package model;
 
 public class Registers {
-    private int[] values;
+    private final String[] values;
 
     public Registers() {
-        this.values = new int[4];
+        this.values = new String[4];
         for(int i = 0; i < 4; i++) {
-            this.values[0] = 0;
+            this.values[0] = "0x0";
         }
     }
 
-    public int getRegisterValue(int registerIndex) {
+    public String getRegisterValue(int registerIndex) {
         if(registerIndex < 0 || registerIndex > 4) {
             throw new IllegalArgumentException("Invalid register index");
         }
@@ -18,7 +18,7 @@ public class Registers {
         return values[registerIndex];
     }
 
-    public void setRegisterValue(int registerIndex, int value) {
+    public void setRegisterValue(int registerIndex, String value) {
         if(registerIndex < 0 || registerIndex > 4) {
             throw new IllegalArgumentException("Invalid register index");
         }

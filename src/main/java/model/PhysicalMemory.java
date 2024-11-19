@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 public class PhysicalMemory {
-    private int nrOfPages;
-    private int pageSize;
-    private int dataSize;
-    private List<List<String>> memory;
+    private final int nrOfPages;
+    private final int pageSize;
+    private final int dataSize;
+    private final List<List<String>> memory;
 
     public PhysicalMemory(int nrPhysicalPages, int pageSize, int dataSize) {
         this.nrOfPages = nrPhysicalPages;
@@ -35,11 +35,15 @@ public class PhysicalMemory {
         return memory;
     }
 
-    public List<List<String>> getMemory() {
-        return memory;
-    }
-
     public String retrieveData(int pageNr, int offset) {
         return memory.get(pageNr).get(offset);
+    }
+
+    public void writeValue(int pageNr, int offset, String value) {
+        memory.get(pageNr).set(offset, value);
+    }
+
+    public List<List<String>> getMemory() {
+        return memory;
     }
 }

@@ -3,10 +3,10 @@ package model;
 import java.util.*;
 
 public class Disk {
-    private int pageSize;
-    private int dataSize;
-    private List<Integer> virtualPages;
-    private Map<Integer, List<String>> memory;
+    private final int pageSize;
+    private final int dataSize;
+    private final List<Integer> virtualPages;
+    private final Map<Integer, List<String>> memory;
 
     public Disk(int pageSize, int dataSize, List<Integer> virtualPages) {
         this.dataSize = dataSize;

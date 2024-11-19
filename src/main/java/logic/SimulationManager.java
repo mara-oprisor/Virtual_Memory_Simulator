@@ -17,7 +17,6 @@ public class SimulationManager {
     private TLB tlb;
     private PhysicalMemory physicalMemory;
     private Disk disk;
-    private List<Instruction> instructions = new ArrayList<>();
 
     public String initialiseSimulation(HashMap<String, Integer> inputData) {
         this.vmSize = (int) Math.pow(2, inputData.get("vmSize"));
@@ -168,6 +167,21 @@ public class SimulationManager {
         return mappedAddresses.get(random.nextInt(mappedAddresses.size()));
     }
 
+    public int generateUnmappedAddress() {
+        List<Integer> unmappedAddresses = new ArrayList<>();
+        Random random = new Random();
+
+        List<Integer> pages = extractUnmappedPages();
+        for(Integer pageNr: pages) {
+            for(int offset = 0; offset < pageSize; offset++) {
+                int address = pageNr * pageSize + offset;
+                unmappedAddresses.add(address);
+            }
+        }
+
+        return unmappedAddresses.get(random.nextInt(unmappedAddresses.size() - 1));
+    }
+
 
     public PageTable getPageTable() {
         return pageTable;
@@ -181,23 +195,17 @@ public class SimulationManager {
         return physicalMemory;
     }
 
-    public void setInstructions(List<String> instructions) {
-        this.instructions.clear();
-        for(String instruction: instructions) {
-            this.instructions.add(Instruction.parseInstruction(instruction, this.pageSize));
-        }
-    }
-
-    public VirtualAddress getNextAddress() {
-        return this.instructions.getFirst().getVirtualAddress();
-    }
 
     public boolean checkPageInTLB(int pageNr) {
         return tlb.isInTLB(pageNr);
     }
 
-    public int getPhysicalPage(int pageNr) {
-        return tlb.getPhysicalPage(pageNr);
+    public boolean checkPageInPageTable(int pageNr) {
+        return pageTable.isInPageTable(pageNr);
+    }
+
+    public int getPhysicalPagePageTable(int pageNr) {
+        return pageTable.getPhysicalPage(pageNr);
     }
 
     public int calculatePhysicalAddress(int pageNr, int offset) {
@@ -206,5 +214,13 @@ public class SimulationManager {
 
     public String getValueFromPhysicalMemory(int physicalPageNumber, int offset) {
         return physicalMemory.retrieveData(physicalPageNumber, offset);
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void storeValueToMemory(int page, int offset, String value) {
+        physicalMemory.writeValue(page, offset, value);
     }
 }

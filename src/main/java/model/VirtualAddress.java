@@ -1,9 +1,9 @@
 package model;
 
 public class VirtualAddress {
-    private String value;
-    private int pageNumber;
-    private int offset;
+    private final String value;
+    private final int pageNumber;
+    private final int offset;
 
     public VirtualAddress(String value, int pageNumber, int offset) {
         this.value = value;

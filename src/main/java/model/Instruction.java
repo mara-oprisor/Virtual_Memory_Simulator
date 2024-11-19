@@ -2,12 +2,12 @@ package model;
 
 
 public class Instruction {
-    private String type;
-    private int register;
-    private VirtualAddress virtualAddress;
+    private final String type;
+    private final int register;
+    private final VirtualAddress virtualAddress;
 
     public Instruction(String type, int register, VirtualAddress virtualAddress) {
-        this.type = type;
+        this.type = type.toUpperCase();
         this.register = register;
         this.virtualAddress = virtualAddress;
     }
@@ -22,8 +22,30 @@ public class Instruction {
 
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if(type.equals("LOAD")) {
+            sb.append("Load R");
+        } else {
+            sb.append("Store R");
+        }
+
+        sb.append(register).append(", ");
+        sb.append(virtualAddress.getValue());
+
+        return String.valueOf(sb);
+    }
+
     public VirtualAddress getVirtualAddress() {
         return virtualAddress;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getRegister() {
+        return register;
     }
 }
 

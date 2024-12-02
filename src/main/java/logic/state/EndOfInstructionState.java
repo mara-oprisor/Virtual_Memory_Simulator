@@ -1,6 +1,5 @@
 package logic.state;
 
-import model.Instruction;
 import view.UIController;
 
 import java.awt.*;
@@ -19,8 +18,11 @@ public class EndOfInstructionState implements State{
         context.getUi().resetHighlights(context.getUi().getTlbTable());
         context.getUi().resetHighlights(context.getUi().getMemoryTable());
         context.getUi().getTlbTable().setBackground(Color.WHITE);
-        context.getUi().getPageNumber().setBackground(Color.WHITE);
+        context.getUi().getVirtualPageNumber().setBackground(Color.WHITE);
         context.getUi().getPageTable().setBackground(Color.WHITE);
+        context.getUi().getPhysicalAddressHex().setBackground(Color.WHITE);
+        context.getUi().getPhysicalPageNumber().setBackground(Color.WHITE);
+        context.getUi().getPhysicalOffset().setBackground(Color.WHITE);
 
         context.setCurrentState(new IdleState());
     }

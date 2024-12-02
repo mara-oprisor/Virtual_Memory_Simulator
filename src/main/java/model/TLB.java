@@ -1,5 +1,6 @@
 package model;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,21 +27,11 @@ public class TLB {
         return false;
     }
 
-    public int getPhysicalPage(int pageNr) {
-        for(int i = 0; i < nrOfEntries; i++) {
-            if(entries.get(i).getVirtualPageNr() == pageNr) {
-                return entries.get(i).getPhysicalPageNr();
-            }
-        }
-
-        return -2;
-    }
-
     public List<PageTableEntry> getEntries() {
         return entries;
     }
 
-    public int getNrOfEntries() {
-        return nrOfEntries;
+    public void updateTimeStamp(int pageNr) {
+        entries.get(pageNr).setEnterTime(new Time(System.currentTimeMillis()));
     }
 }

@@ -1,5 +1,6 @@
 package model;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,5 +71,9 @@ public class PageTable {
                 entry.setPhysicalPageNr(physicalPage);
             }
         }
+    }
+
+    public void updateTimeStamp(int pageNr) {
+        entries.get(pageNr).setEnterTime(new Time(System.currentTimeMillis()));
     }
 }

@@ -226,8 +226,8 @@ public class UIController {
             VirtualAddress virtualAddress = scenariosManager.loadInstruction();
             if (virtualAddress != null) {
                 ui.getVirtualAddressHex().setText(virtualAddress.getValue());
-                ui.getPageNumber().setText(String.valueOf(virtualAddress.getPageNumber()));
-                ui.getOffset().setText(String.valueOf(virtualAddress.getOffset()));
+                ui.getVirtualPageNumber().setText(String.valueOf(virtualAddress.getPageNumber()));
+                ui.getVirtualOffset().setText(String.valueOf(virtualAddress.getOffset()));
 
             } else {
                 JOptionPane.showMessageDialog(ui, "There are no more instructions. Please load another set.", "Error - load instructions", JOptionPane.ERROR_MESSAGE);
@@ -249,8 +249,12 @@ public class UIController {
             ui.getTlbEntriesField().setText("5");
 
             ui.getVirtualAddressHex().setText("");
-            ui.getPageNumber().setText("");
-            ui.getOffset().setText("");
+            ui.getVirtualPageNumber().setText("");
+            ui.getVirtualOffset().setText("");
+
+            ui.getPhysicalAddressHex().setText("");
+            ui.getPhysicalPageNumber().setText("");
+            ui.getPhysicalOffset().setText("");
 
             ui.getInfoArea().setForeground(Color.BLACK);
             ui.getInfoArea().setText("Please Configure Memory Settings.");
@@ -267,7 +271,7 @@ public class UIController {
             ui.resetHighlights(ui.getTlbTable());
             ui.resetHighlights(ui.getMemoryTable());
             ui.getTlbTable().setBackground(Color.WHITE);
-            ui.getPageNumber().setBackground(Color.WHITE);
+            ui.getVirtualPageNumber().setBackground(Color.WHITE);
             ui.getPageTable().setBackground(Color.WHITE);
         });
     }

@@ -48,7 +48,4 @@ public class PageTableEntry {
         this.physicalPageNr = physicalPageNr;
     }
 
-    public void setVirtualPageNr(int virtualPageNr) {
-        this.virtualPageNr = virtualPageNr;
-    }
 }

@@ -2,7 +2,6 @@ package logic;
 
 import model.*;
 import util.JSONUtil;
-
 import java.util.*;
 
 public class SimulationManager {
@@ -17,6 +16,7 @@ public class SimulationManager {
     private TLB tlb;
     private PhysicalMemory physicalMemory;
     private Disk disk;
+    private TableManager tableManager;
 
     public String initialiseSimulation(HashMap<String, Integer> inputData) {
         this.vmSize = (int) Math.pow(2, inputData.get("vmSize"));
@@ -27,15 +27,17 @@ public class SimulationManager {
         this.nrPhysicalPages = this.pmSize / this.pageSize;
         this.nrVirtualPages = this.vmSize / this.pageSize;
 
+        this.tableManager = new TableManager();
+
         this.pageTable = new PageTable(this.nrVirtualPages);
-        populatePageTable();
+        tableManager.populatePageTable(nrVirtualPages, nrPhysicalPages, pageTable);
 
         this.tlb = new TLB(this.tlbEntries);
-        populateTLB();
+        tableManager.populateTLB(tlbEntries, tlb, pageTable);
 
         this.physicalMemory = new PhysicalMemory(this.nrPhysicalPages, this.pageSize, this.pmSize);
 
-        this.disk = new Disk(this.pageSize, this.pmSize, extractUnmappedPages());
+        this.disk = new Disk(this.pageSize, this.pmSize, tableManager.extractUnmappedPages(pageTable));
         createDisk();
 
         StringBuilder sb = new StringBuilder("Simulation is ready to start!\n\n");
@@ -54,137 +56,7 @@ public class SimulationManager {
         JSONUtil.saveToJSON("disk.json", JSONUtil.formatDiskToJSON(disk));
     }
 
-    private void populatePageTable() {
-        HashSet<Integer> physicalMappings = new HashSet<>();
-        Random rand = new Random();
-        List<Integer> virtualPageIndices = new ArrayList<>();
 
-        for (int i = 0; i < this.nrVirtualPages; i++) {
-            virtualPageIndices.add(i);
-        }
-        Collections.shuffle(virtualPageIndices, rand);
-
-        for(int i = 0; i < this.nrVirtualPages; i++) {
-            int virtualPageNr = virtualPageIndices.get(i);
-            int physicalPageNr;
-            boolean isMapped;
-
-            if(i < this.nrPhysicalPages) {
-                do {
-                    physicalPageNr = rand.nextInt(this.nrPhysicalPages);
-                } while(physicalMappings.contains(physicalPageNr));
-
-                physicalMappings.add(physicalPageNr);
-                isMapped = true;
-            } else {
-                physicalPageNr = -1;
-                isMapped = false;
-            }
-
-            PageTableEntry entry = new PageTableEntry(i, virtualPageNr, physicalPageNr, isMapped);
-            this.pageTable.addEntry(entry);
-        }
-
-        int index = 1;
-        Collections.shuffle(this.pageTable.getEntries());
-        for(PageTableEntry entry: this.pageTable.getEntries()) {
-            entry.setIndex(index++);
-        }
-    }
-
-    private void populateTLB() {
-        Random rand = new Random();
-
-        List<PageTableEntry> validEntries = new ArrayList<>();
-        for (PageTableEntry entry : this.pageTable.getEntries()) {
-            if (entry.getPhysicalPageNr() != -1) {
-                validEntries.add(entry);
-            }
-        }
-
-        Collections.shuffle(validEntries, rand);
-
-        int entriesToAdd = Math.min(this.tlbEntries, validEntries.size());
-        for (int i = 0; i < entriesToAdd; i++) {
-            PageTableEntry entry = validEntries.get(i);
-            this.tlb.addEntry(entry);
-        }
-
-        int index = 1;
-        Collections.shuffle(this.tlb.getEntries());
-        for (PageTableEntry entry : this.tlb.getEntries()) {
-            entry.setIndex(index++);
-        }
-    }
-
-    private List<Integer> extractUnmappedPages() {
-        List<Integer> pages = new ArrayList<>();
-        for(PageTableEntry entry: pageTable.getEntries()) {
-            if(entry.getPhysicalPageNr() == -1) {
-                pages.add(entry.getVirtualPageNr());
-            }
-        }
-
-        return pages;
-    }
-
-    private List<Integer> extractMappedPages() {
-        List<Integer> pages = new ArrayList<>();
-        for(PageTableEntry entry: pageTable.getEntries()) {
-            if(entry.getPhysicalPageNr() != -1) {
-                pages.add(entry.getVirtualPageNr());
-            }
-        }
-
-        return pages;
-    }
-
-    public int generateMappedAddress(boolean fromTLB) {
-        List<Integer> mappedAddresses = new ArrayList<>();
-        Random random = new Random();
-
-        List<Integer> TLBPages = new ArrayList<>();
-        for(PageTableEntry entry: tlb.getEntries()) {
-            int pageNr = entry.getVirtualPageNr();
-            TLBPages.add(pageNr);
-        }
-
-        if(fromTLB) {
-            for(Integer pageNr: TLBPages) {
-                for(int offset = 0; offset < pageSize; offset++) {
-                    int address = pageNr * pageSize + offset;
-                    mappedAddresses.add(address);
-                }
-            }
-        } else {
-            List<Integer> pages = extractMappedPages();
-            for(Integer pageNr: pages) {
-                if(!TLBPages.contains(pageNr)) {
-                    for(int offset = 0; offset < pageSize; offset++) {
-                        int address = pageNr * pageSize + offset;
-                        mappedAddresses.add(address);
-                    }
-                }
-            }
-        }
-
-        return mappedAddresses.get(random.nextInt(mappedAddresses.size()));
-    }
-
-    public int generateUnmappedAddress() {
-        List<Integer> unmappedAddresses = new ArrayList<>();
-        Random random = new Random();
-
-        List<Integer> pages = extractUnmappedPages();
-        for(Integer pageNr: pages) {
-            for(int offset = 0; offset < pageSize; offset++) {
-                int address = pageNr * pageSize + offset;
-                unmappedAddresses.add(address);
-            }
-        }
-
-        return unmappedAddresses.get(random.nextInt(unmappedAddresses.size() - 1));
-    }
 
 
     public PageTable getPageTable() {
@@ -250,5 +122,13 @@ public class SimulationManager {
 
     public void changePageTable(int virtualPage, int physicalPage, int virtualPageRemoved) {
         pageTable.replacePage(virtualPage, physicalPage, virtualPageRemoved);
+    }
+
+    public void updateTimeStamp(boolean inTLB, int pageNr) {
+        if(inTLB) {
+            tlb.updateTimeStamp(pageNr);
+        }
+
+        pageTable.updateTimeStamp(pageNr);
     }
 }

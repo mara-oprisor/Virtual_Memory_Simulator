@@ -12,9 +12,12 @@ public class PhysicalPageExtractionState implements State {
     public void execute(UIController context) {
         int physicalPageNumber = context.getSimulationManager().getPhysicalPagePageTable(pageNr);
         context.getUi().getInfoArea().setForeground(Color.BLACK);
-        context.getUi().getInfoArea().append("\nThe corresponding physical page is " + physicalPageNumber + ".");
+        context.getUi().getInfoArea().append("\nThe corresponding physical page is " + physicalPageNumber + ".\n");
         context.getUi().highlightPhysicalMemoryPage(physicalPageNumber, Color.GREEN);
 
-        context.setCurrentState(new AddressCalculationState(physicalPageNumber, pageNr));
+        context.getUi().getPhysicalPageNumber().setText(String.valueOf(physicalPageNumber));
+        context.getUi().getPhysicalPageNumber().setBackground(Color.CYAN);
+
+        context.setCurrentState(new OffsetComputationState(pageNr, physicalPageNumber));
     }
 }

@@ -2,6 +2,7 @@ package logic.state;
 
 import view.UIController;
 
+import java.awt.*;
 import java.util.List;
 
 public class InterchangeDiskAndPhysMemState implements State{
@@ -27,6 +28,9 @@ public class InterchangeDiskAndPhysMemState implements State{
 
         context.fillPageTable();
         context.fillPhysicalMemoryTable();
+
+        context.getUi().highlightPhysicalMemoryPage(physicalPageNr, Color.PINK);
+        context.getUi().highlightPageTableEntry(pageNrFromDisk, Color.PINK);
 
         context.setCurrentState(new PageTableSearchState(pageNrFromDisk));
     }

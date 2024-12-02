@@ -16,8 +16,11 @@ public class UI extends JFrame {
     private final JButton startButton = new JButton("Start Simulation");
     private final JPanel addressPanel = new JPanel(new GridLayout(2, 1, 5, 5));
     private final JTextField virtualAddressHex = new JTextField();
-    private final JTextField pageNumber = new JTextField();
-    private final JTextField offset = new JTextField();
+    private final JTextField physicalAddressHex = new JTextField();
+    private final JTextField virtualPageNumber = new JTextField();
+    private final JTextField virtualOffset = new JTextField();
+    private final JTextField physicalPageNumber = new JTextField();
+    private final JTextField physicalOffset = new JTextField();
     private final JPanel scenariosPanel = new JPanel(new GridBagLayout());
     private final JPanel loadInstructionPanel = new JPanel(new BorderLayout());
     private final JComboBox<String> scenarioComboBox = new JComboBox<>(new String[]{"Find in TLB", "Find in PageTable", "Find on Disk"});
@@ -111,8 +114,8 @@ public class UI extends JFrame {
         addressPanel.add(new JLabel("Virtual Address:"), gbc);
 
         gbc.gridx = 1;
-        virtualAddressHex.setMinimumSize(new Dimension(250, 25));
-        virtualAddressHex.setPreferredSize(new Dimension(250, 25));
+        virtualAddressHex.setMinimumSize(new Dimension(250, 20));
+        virtualAddressHex.setPreferredSize(new Dimension(250, 20));
         virtualAddressHex.setEditable(false);
         addressPanel.add(virtualAddressHex, gbc);
 
@@ -131,20 +134,53 @@ public class UI extends JFrame {
 
         gbc.gridy = 3;
         gbc.gridx = 0;
-
-        pageNumber.setMinimumSize(new Dimension(250, 25));
-        pageNumber.setPreferredSize(new Dimension(250, 25));
-        pageNumber.setEditable(false);
-        addressPanel.add(pageNumber, gbc);
+        virtualPageNumber.setMinimumSize(new Dimension(250, 20));
+        virtualPageNumber.setPreferredSize(new Dimension(250, 20));
+        virtualPageNumber.setEditable(false);
+        addressPanel.add(virtualPageNumber, gbc);
 
         gbc.gridx = 1;
-        offset.setMinimumSize(new Dimension(250, 25));
-        offset.setPreferredSize(new Dimension(250, 25));
-        offset.setEditable(false);
-        addressPanel.add(offset, gbc);
+        virtualOffset.setMinimumSize(new Dimension(250, 20));
+        virtualOffset.setPreferredSize(new Dimension(250, 20));
+        virtualOffset.setEditable(false);
+        addressPanel.add(virtualOffset, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        addressPanel.add(Box.createVerticalStrut(10), gbc);
+
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        addressPanel.add(new JLabel("Physical Address:"), gbc);
+
+        gbc.gridx = 1;
+        physicalAddressHex.setMinimumSize(new Dimension(250, 20));
+        physicalAddressHex.setPreferredSize(new Dimension(250, 20));
+        physicalAddressHex.setEditable(false);
+        addressPanel.add(physicalAddressHex, gbc);
+
+        gbc.gridy = 6;
+        gbc.gridx = 0;
+        addressPanel.add(new JLabel("Page Number:"), gbc);
+
+        gbc.gridx = 1;
+        addressPanel.add(new JLabel("Offset:"), gbc);
+
+        gbc.gridy = 7;
+        gbc.gridx = 0;
+        physicalPageNumber.setMinimumSize(new Dimension(250, 20));
+        physicalPageNumber.setPreferredSize(new Dimension(250, 20));
+        physicalPageNumber.setEditable(false);
+        addressPanel.add(physicalPageNumber, gbc);
+
+        gbc.gridx = 1;
+        physicalOffset.setMinimumSize(new Dimension(250, 20));
+        physicalOffset.setPreferredSize(new Dimension(250, 20));
+        physicalOffset.setEditable(false);
+        addressPanel.add(physicalOffset, gbc);
     }
-
-
 
     private void createScenariosPanel() {
         scenariosPanel.setBorder(BorderFactory.createTitledBorder("Simulation Scenarios"));
@@ -316,12 +352,12 @@ public class UI extends JFrame {
         return virtualAddressHex;
     }
 
-    public JTextField getPageNumber() {
-        return pageNumber;
+    public JTextField getVirtualPageNumber() {
+        return virtualPageNumber;
     }
 
-    public JTextField getOffset() {
-        return offset;
+    public JTextField getVirtualOffset() {
+        return virtualOffset;
     }
 
     public JButton getNextStep() {
@@ -330,5 +366,17 @@ public class UI extends JFrame {
 
     public JButton getResetSimulation() {
         return resetSimulation;
+    }
+
+    public JTextField getPhysicalAddressHex() {
+        return physicalAddressHex;
+    }
+
+    public JTextField getPhysicalPageNumber() {
+        return physicalPageNumber;
+    }
+
+    public JTextField getPhysicalOffset() {
+        return physicalOffset;
     }
 }

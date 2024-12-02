@@ -1,32 +1,89 @@
 package logic;
 
 import model.Instruction;
+import model.PageTableEntry;
 import model.Registers;
 import model.VirtualAddress;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ScenariosManager {
     private SimulationManager simulationManager;
+    private TableManager tableManager;
     private List<Instruction> instructions = new ArrayList<>();
     private Registers registers;
+
     public ScenariosManager(SimulationManager simulationManager) {
         this.simulationManager = simulationManager;
         this.registers = new Registers();
+        this.tableManager = new TableManager();
     }
+
+    private int generateMappedAddress(boolean fromTLB) {
+        int pageSize = simulationManager.getPageSize();
+
+        List<Integer> mappedAddresses = new ArrayList<>();
+        Random random = new Random();
+
+        List<Integer> TLBPages = new ArrayList<>();
+        for(PageTableEntry entry: simulationManager.getTlb().getEntries()) {
+            int pageNr = entry.getVirtualPageNr();
+            TLBPages.add(pageNr);
+        }
+
+        if(fromTLB) {
+            for(Integer pageNr: TLBPages) {
+                for(int offset = 0; offset < pageSize; offset++) {
+                    int address = pageNr * pageSize + offset;
+                    mappedAddresses.add(address);
+                }
+            }
+        } else {
+            List<Integer> pages = tableManager.extractMappedPages(simulationManager.getPageTable());
+            for(Integer pageNr: pages) {
+                if(!TLBPages.contains(pageNr)) {
+                    for(int offset = 0; offset < pageSize; offset++) {
+                        int address = pageNr * pageSize + offset;
+                        mappedAddresses.add(address);
+                    }
+                }
+            }
+        }
+
+        return mappedAddresses.get(random.nextInt(mappedAddresses.size()));
+    }
+
+    private int generateUnmappedAddress() {
+        int pageSize = simulationManager.getPageSize();
+
+        List<Integer> unmappedAddresses = new ArrayList<>();
+        Random random = new Random();
+
+        List<Integer> pages = tableManager.extractUnmappedPages(simulationManager.getPageTable());
+        for(Integer pageNr: pages) {
+            for(int offset = 0; offset < pageSize; offset++) {
+                int address = pageNr * pageSize + offset;
+                unmappedAddresses.add(address);
+            }
+        }
+
+        return unmappedAddresses.get(random.nextInt(unmappedAddresses.size() - 1));
+    }
+
     private List<Integer> generateAddresses(int typeInstruction) {
         List<Integer> addresses = new ArrayList<>();
 
         if(typeInstruction == 0) {
-            addresses.add(simulationManager.generateMappedAddress(true));
-            addresses.add(simulationManager.generateMappedAddress(true));
+            addresses.add(generateMappedAddress(true));
+            addresses.add(generateMappedAddress(true));
         } else if(typeInstruction == 1) {
-            addresses.add(simulationManager.generateMappedAddress(false));
-            addresses.add(simulationManager.generateMappedAddress(false));
+            addresses.add(generateMappedAddress(false));
+            addresses.add(generateMappedAddress(false));
         } else if(typeInstruction == 2) {
-            addresses.add(simulationManager.generateUnmappedAddress());
-            addresses.add(simulationManager.generateUnmappedAddress());
+            addresses.add(generateUnmappedAddress());
+            addresses.add(generateUnmappedAddress());
         }
 
         return addresses;

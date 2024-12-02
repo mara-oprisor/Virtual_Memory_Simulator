@@ -20,6 +20,7 @@ public class FindLRUState implements State{
         int physicalPageNr = pair[1];
         context.getUi().getInfoArea().append(String.valueOf(physicalPageNr));
         context.getUi().highlightPhysicalMemoryPage(physicalPageNr, Color.PINK);
+        context.getUi().highlightPageTableEntry(virtualPageNr, Color.PINK);
 
         context.setCurrentState(new InterchangeDiskAndPhysMemState(pageNr, dataFromDisk, physicalPageNr, virtualPageNr));
     }

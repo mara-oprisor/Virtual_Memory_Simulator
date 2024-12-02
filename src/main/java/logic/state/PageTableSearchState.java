@@ -10,6 +10,7 @@ public class PageTableSearchState implements State {
         this.pageNr = pageNr;
     }
     public void execute(UIController context) {
+        context.getUi().getInfoArea().setForeground(Color.BLACK);
         context.getUi().getInfoArea().setText("\nWe search for the page in the Page Table.");
         context.getUi().getTlbTable().setBackground(Color.WHITE);
         context.getUi().getPageTable().setBackground(Color.YELLOW);

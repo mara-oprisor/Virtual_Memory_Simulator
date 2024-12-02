@@ -36,7 +36,7 @@ public class SimulationManager {
         this.physicalMemory = new PhysicalMemory(this.nrPhysicalPages, this.pageSize, this.pmSize);
 
         this.disk = new Disk(this.pageSize, this.pmSize, extractUnmappedPages());
-        JSONUtil.saveToJSON("disk.json", JSONUtil.formatDiskToJSON(disk));
+        createDisk();
 
         StringBuilder sb = new StringBuilder("Simulation is ready to start!\n\n");
         sb.append("Number of offset bits = ").append(this.offsetBits).append(" bits\n");
@@ -47,7 +47,11 @@ public class SimulationManager {
         sb.append("Number of virtual pages = ").append(this.vmSize).append(" / ").append(this.pageSize).append(" = ").append(this.nrVirtualPages).append("\n");
         sb.append("\nPlease select a scenario.");
 
-        return String.valueOf(sb);
+        return sb.toString();
+    }
+
+    public void createDisk() {
+        JSONUtil.saveToJSON("disk.json", JSONUtil.formatDiskToJSON(disk));
     }
 
     private void populatePageTable() {
@@ -201,7 +205,7 @@ public class SimulationManager {
     }
 
     public boolean checkPageInPageTable(int pageNr) {
-        return pageTable.isInPageTable(pageNr);
+        return pageTable.isInPrincipalMemory(pageNr);
     }
 
     public int getPhysicalPagePageTable(int pageNr) {
@@ -216,11 +220,35 @@ public class SimulationManager {
         return physicalMemory.retrieveData(physicalPageNumber, offset);
     }
 
+    public List<java.lang.String> getValuesFromPhysicalMemory(int physicalPageNumber) {
+        return physicalMemory.retrieveAllData(physicalPageNumber);
+    }
+
+    public List<String> getDataFromDisk(int pageNr) {
+        return disk.retrieveData(pageNr);
+    }
+
     public int getPageSize() {
         return pageSize;
     }
 
     public void storeValueToMemory(int page, int offset, String value) {
         physicalMemory.writeValue(page, offset, value);
+    }
+
+    public void storeValueToDisk(int page, List<String> data) {
+        disk.writeData(page, data);
+    }
+
+    public void deleteValueFromDisk(int page) {
+        disk.deleteEntry(page);
+    }
+
+    public void replaceDataInPhysicalMemory(int page, List<String> data) {
+        physicalMemory.replaceData(page, data);
+    }
+
+    public void changePageTable(int virtualPage, int physicalPage, int virtualPageRemoved) {
+        pageTable.replacePage(virtualPage, physicalPage, virtualPageRemoved);
     }
 }

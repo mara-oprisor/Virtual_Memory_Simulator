@@ -39,4 +39,8 @@ public class TLB {
     public List<PageTableEntry> getEntries() {
         return entries;
     }
+
+    public int getNrOfEntries() {
+        return nrOfEntries;
+    }
 }

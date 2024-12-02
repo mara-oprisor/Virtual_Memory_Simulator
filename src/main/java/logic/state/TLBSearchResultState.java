@@ -12,7 +12,7 @@ public class TLBSearchResultState implements  State{
         if (pageInTLB) {
             context.getUi().getInfoArea().append("Page was found in the TLB.\n");
             context.getUi().getInfoArea().setForeground(Color.GREEN);
-            context.getUi().highlightTLBEntry(pageNr);
+            context.getUi().highlightTLBEntry(pageNr, Color.GREEN);
 
             context.setCurrentState(new PhysicalPageExtractionState(pageNr));
         } else {

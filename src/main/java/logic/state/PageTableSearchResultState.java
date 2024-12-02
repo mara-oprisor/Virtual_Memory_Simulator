@@ -13,16 +13,16 @@ public class PageTableSearchResultState implements State{
     public void execute(UIController context) {
         boolean pageInPageTable = context.getSimulationManager().checkPageInPageTable(pageNr);
         if(pageInPageTable) {
-            context.getUi().getInfoArea().append("\nPage was found in the Page Table.");
+            context.getUi().getInfoArea().append("\nPage was found in the Physical Memory.");
             context.getUi().getInfoArea().setForeground(Color.GREEN);
-            context.getUi().highlightPageTableEntry(pageNr);
+            context.getUi().highlightPageTableEntry(pageNr, Color.GREEN);
 
             context.setCurrentState(new PhysicalPageExtractionState(pageNr));
         } else {
-            context.getUi().getInfoArea().append("\nPage was not found in the Page Table.");
+            context.getUi().getInfoArea().append("\nPage was not found in the Physical Memory.");
             context.getUi().getInfoArea().setForeground(Color.RED);
 
-            context.setCurrentState(new DiskSearchState());
+            context.setCurrentState(new DiskSearchState(pageNr));
         }
     }
 }

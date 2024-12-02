@@ -35,4 +35,16 @@ public class Disk {
     public Map<Integer, List<String>> getMemory() {
         return memory;
     }
+
+    public List<String> retrieveData(int pageNr) {
+        return memory.get(pageNr);
+    }
+
+    public void writeData(int page, List<String> data) {
+        memory.put(page, data);
+    }
+
+    public void deleteEntry(int page) {
+        memory.remove(page);
+    }
 }

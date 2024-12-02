@@ -215,30 +215,30 @@ public class UI extends JFrame {
         add(resetPanel, BorderLayout.SOUTH);
     }
 
-    public void highlightTLBEntry(int pageNumber) {
+    public void highlightTLBEntry(int pageNumber, Color color) {
         for (int i = 0; i < tlbTable.getRowCount(); i++) {
             if ((int) tlbTable.getValueAt(i, 1) == pageNumber) {
-                tlbTable.setSelectionBackground(Color.GREEN);
+                tlbTable.setSelectionBackground(color);
                 tlbTable.setRowSelectionInterval(i, i);
                 break;
             }
         }
     }
 
-    public void highlightPageTableEntry(int pageNumber) {
+    public void highlightPageTableEntry(int pageNumber, Color color) {
         for (int i = 0; i < pageTable.getRowCount(); i++) {
             if ((int) pageTable.getValueAt(i, 1) == pageNumber) {
-                pageTable.setSelectionBackground(Color.GREEN);
+                pageTable.setSelectionBackground(color);
                 pageTable.setRowSelectionInterval(i, i);
                 break;
             }
         }
     }
 
-    public void highlightPhysicalMemoryPage(int physicalPageNumber) {
+    public void highlightPhysicalMemoryPage(int physicalPageNumber, Color color) {
         for (int i = 0; i < memoryTable.getRowCount(); i++) {
             if ((int) memoryTable.getValueAt(i, 0) == physicalPageNumber) {
-                memoryTable.setSelectionBackground(Color.GREEN);
+                memoryTable.setSelectionBackground(color);
                 memoryTable.setRowSelectionInterval(i, i);
                 break;
             }

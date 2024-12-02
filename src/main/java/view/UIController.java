@@ -1,5 +1,6 @@
 package view;
 
+import logic.ReplacementManager;
 import logic.ScenariosManager;
 import logic.SimulationManager;
 import logic.state.IdleState;
@@ -17,12 +18,14 @@ public class UIController {
     private final UI ui;
     private final SimulationManager simulationManager;
     private final ScenariosManager scenariosManager;
+    private final ReplacementManager replacementManager;
     private State currentState;
 
     public UIController(UI ui, SimulationManager simulationManager) {
         this.ui = ui;
         this.simulationManager = simulationManager;
         this.scenariosManager = new ScenariosManager(simulationManager);
+        this.replacementManager = new ReplacementManager(simulationManager);
         this.currentState = new IdleState();
         validateInput();
         startSimulation();
@@ -148,7 +151,7 @@ public class UIController {
         });
     }
 
-    private void fillPageTable() {
+    public void fillPageTable() {
         PageTable pageTable = simulationManager.getPageTable();
         String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
@@ -182,7 +185,7 @@ public class UIController {
         ui.getTlbTable().setModel(model);
     }
 
-    private void fillPhysicalMemoryTable() {
+    public void fillPhysicalMemoryTable() {
         PhysicalMemory physicalMemory = simulationManager.getPhysicalMemory();
 
         String[] columnNames = {"Physical Page Number", "Contents"};
@@ -283,5 +286,9 @@ public class UIController {
 
     public ScenariosManager getScenariosManager() {
         return scenariosManager;
+    }
+
+    public ReplacementManager getReplacementManager() {
+        return replacementManager;
     }
 }

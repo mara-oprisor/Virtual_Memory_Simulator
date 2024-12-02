@@ -4,8 +4,8 @@ import java.sql.Time;
 
 public class PageTableEntry {
     private int index;
-    private final int virtualPageNr;
-    private final int physicalPageNr;
+    private int virtualPageNr;
+    private int physicalPageNr;
     private Time enterTime;
 
     public PageTableEntry(int index, int virtualPageNr, int physicalPageNr, boolean isMapped) {
@@ -34,5 +34,21 @@ public class PageTableEntry {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public Time getEnterTime() {
+        return enterTime;
+    }
+
+    public void setEnterTime(Time enterTime) {
+        this.enterTime = enterTime;
+    }
+
+    public void setPhysicalPageNr(int physicalPageNr) {
+        this.physicalPageNr = physicalPageNr;
+    }
+
+    public void setVirtualPageNr(int virtualPageNr) {
+        this.virtualPageNr = virtualPageNr;
     }
 }

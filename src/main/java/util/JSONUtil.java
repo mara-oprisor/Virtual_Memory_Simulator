@@ -34,13 +34,5 @@ public class JSONUtil {
         return jsonList;
     }
 
-    public static <T> T readFromJSON(String fileName, Class<T> valueType) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(new File(fileName), valueType);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+
 }

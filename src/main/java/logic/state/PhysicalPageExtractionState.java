@@ -13,7 +13,7 @@ public class PhysicalPageExtractionState implements State {
         int physicalPageNumber = context.getSimulationManager().getPhysicalPagePageTable(pageNr);
         context.getUi().getInfoArea().setForeground(Color.BLACK);
         context.getUi().getInfoArea().append("\nThe corresponding physical page is " + physicalPageNumber + ".");
-        context.getUi().highlightPhysicalMemoryPage(physicalPageNumber);
+        context.getUi().highlightPhysicalMemoryPage(physicalPageNumber, Color.GREEN);
 
         context.setCurrentState(new AddressCalculationState(physicalPageNumber, pageNr));
     }

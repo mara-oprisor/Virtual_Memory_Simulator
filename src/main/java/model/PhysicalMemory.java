@@ -39,11 +39,19 @@ public class PhysicalMemory {
         return memory.get(pageNr).get(offset);
     }
 
+    public List<String> retrieveAllData(int pageNr) {
+        return memory.get(pageNr);
+    }
+
     public void writeValue(int pageNr, int offset, String value) {
         memory.get(pageNr).set(offset, value);
     }
 
     public List<List<String>> getMemory() {
         return memory;
+    }
+
+    public void replaceData(int page, List<String> data) {
+        memory.set(page, data);
     }
 }

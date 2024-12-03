@@ -4,7 +4,7 @@ import view.UIController;
 
 import java.awt.*;
 
-public class IdleState implements State{
+public class IdleState implements State {
     public void execute(UIController context) {
         context.getUi().getInfoArea().setForeground(Color.BLACK);
 

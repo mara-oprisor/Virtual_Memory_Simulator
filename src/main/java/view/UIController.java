@@ -168,7 +168,7 @@ public class UIController {
         ui.getPageTable().setModel(model);
     }
 
-    private void fillTLB() {
+    public void fillTLB() {
         TLB tlb = simulationManager.getTlb();
         String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);

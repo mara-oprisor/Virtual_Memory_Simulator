@@ -2,6 +2,7 @@ package model;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TLB {
@@ -17,9 +18,19 @@ public class TLB {
         entries.add(entry);
     }
 
+    public void replaceEntry(PageTableEntry newEntry, int virtualPage) {
+        for (PageTableEntry entry : entries) {
+            if (entry.getVirtualPageNr() == virtualPage) {
+                entry.setVirtualPageNr(newEntry.getVirtualPageNr());
+                entry.setPhysicalPageNr(newEntry.getPhysicalPageNr());
+                entry.setEnterTime(newEntry.getEnterTime());
+            }
+        }
+    }
+
     public boolean isInTLB(int pageNr) {
-        for(int i = 0; i < nrOfEntries; i++) {
-            if(entries.get(i).getVirtualPageNr() == pageNr) {
+        for (int i = 0; i < nrOfEntries; i++) {
+            if (entries.get(i).getVirtualPageNr() == pageNr) {
                 return true;
             }
         }
@@ -27,11 +38,30 @@ public class TLB {
         return false;
     }
 
-    public List<PageTableEntry> getEntries() {
-        return entries;
+    public Object[] getLRUEntry() {
+        Time lruTime = new Time(Long.MAX_VALUE);
+        int indexLRU = -1;
+        for (int i = 0; i < nrOfEntries; i++) {
+            if (lruTime.after(entries.get(i).getEnterTime())) {
+                lruTime = entries.get(i).getEnterTime();
+                indexLRU = i;
+            }
+        }
+
+        PageTableEntry lruPage = entries.get(indexLRU);
+
+        return new Object[]{lruPage.getVirtualPageNr(), lruPage.getEnterTime()};
     }
 
     public void updateTimeStamp(int pageNr) {
-        entries.get(pageNr).setEnterTime(new Time(System.currentTimeMillis()));
+        for (int i = 0; i < nrOfEntries; i++) {
+            if (entries.get(i).getVirtualPageNr() == pageNr) {
+                entries.get(i).setEnterTime(new Time(System.currentTimeMillis()));
+            }
+        }
+    }
+
+    public List<PageTableEntry> getEntries() {
+        return entries;
     }
 }

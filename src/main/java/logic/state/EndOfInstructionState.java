@@ -4,13 +4,15 @@ import view.UIController;
 
 import java.awt.*;
 
-public class EndOfInstructionState implements State{
+public class EndOfInstructionState implements State {
     private int pageNr;
     private String value;
+
     public EndOfInstructionState(String value, int pageNr) {
         this.value = value;
         this.pageNr = pageNr;
     }
+
     public void execute(UIController context) {
         String newInstructions = context.getScenariosManager().processAndRemoveInstruction(value, pageNr);
         context.getUi().getInstructions().setText(newInstructions);

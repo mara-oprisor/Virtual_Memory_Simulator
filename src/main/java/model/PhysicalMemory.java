@@ -21,10 +21,10 @@ public class PhysicalMemory {
         Random random = new Random();
         List<List<String>> memory = new ArrayList<>();
 
-        for(int i = 0; i < nrOfPages; i++) {
+        for (int i = 0; i < nrOfPages; i++) {
             List<String> page = new ArrayList<>();
 
-            for(int j = 0; j < pageSize; j++) {
+            for (int j = 0; j < pageSize; j++) {
                 int randomValue = random.nextInt(this.dataSize);
                 page.add(String.format("0x%02X", randomValue));
             }
@@ -47,11 +47,11 @@ public class PhysicalMemory {
         memory.get(pageNr).set(offset, value);
     }
 
-    public List<List<String>> getMemory() {
-        return memory;
-    }
-
     public void replaceData(int page, List<String> data) {
         memory.set(page, data);
+    }
+
+    public List<List<String>> getMemory() {
+        return memory;
     }
 }

@@ -4,15 +4,17 @@ import view.UIController;
 
 import java.awt.*;
 
-public class AddressCalculationState implements State {
+public class AddressComputationState implements State {
     private int pageNr;
     private int physicalPageNumber;
     private int offset;
-    public AddressCalculationState(int physicalPageNumber, int pageNr, int offset) {
+
+    public AddressComputationState(int physicalPageNumber, int pageNr, int offset) {
         this.physicalPageNumber = physicalPageNumber;
         this.pageNr = pageNr;
         this.offset = offset;
     }
+
     public void execute(UIController context) {
         context.getUi().getVirtualOffset().setBackground(Color.WHITE);
         context.getUi().getInfoArea().append("\n Physical address = page_number * page_size + offset\n");

@@ -2,6 +2,7 @@ package logic;
 
 import model.*;
 import util.JSONUtil;
+
 import java.util.*;
 
 public class SimulationManager {
@@ -56,22 +57,6 @@ public class SimulationManager {
         JSONUtil.saveToJSON("disk.json", JSONUtil.formatDiskToJSON(disk));
     }
 
-
-
-
-    public PageTable getPageTable() {
-        return pageTable;
-    }
-
-    public TLB getTlb() {
-        return tlb;
-    }
-
-    public PhysicalMemory getPhysicalMemory() {
-        return physicalMemory;
-    }
-
-
     public boolean checkPageInTLB(int pageNr) {
         return tlb.isInTLB(pageNr);
     }
@@ -92,7 +77,7 @@ public class SimulationManager {
         return physicalMemory.retrieveData(physicalPageNumber, offset);
     }
 
-    public List<java.lang.String> getValuesFromPhysicalMemory(int physicalPageNumber) {
+    public List<String> getValuesFromPhysicalMemory(int physicalPageNumber) {
         return physicalMemory.retrieveAllData(physicalPageNumber);
     }
 
@@ -100,19 +85,15 @@ public class SimulationManager {
         return disk.retrieveData(pageNr);
     }
 
-    public int getPageSize() {
-        return pageSize;
-    }
-
     public void storeValueToMemory(int page, int offset, String value) {
         physicalMemory.writeValue(page, offset, value);
     }
 
-    public void storeValueToDisk(int page, List<String> data) {
+    public void storeValuesToDisk(int page, List<String> data) {
         disk.writeData(page, data);
     }
 
-    public void deleteValueFromDisk(int page) {
+    public void deleteValuesFromDisk(int page) {
         disk.deleteEntry(page);
     }
 
@@ -125,10 +106,26 @@ public class SimulationManager {
     }
 
     public void updateTimeStamp(boolean inTLB, int pageNr) {
-        if(inTLB) {
+        if (inTLB) {
             tlb.updateTimeStamp(pageNr);
         }
 
         pageTable.updateTimeStamp(pageNr);
+    }
+
+    public PageTable getPageTable() {
+        return pageTable;
+    }
+
+    public TLB getTlb() {
+        return tlb;
+    }
+
+    public PhysicalMemory getPhysicalMemory() {
+        return physicalMemory;
+    }
+
+    public int getPageSize() {
+        return pageSize;
     }
 }

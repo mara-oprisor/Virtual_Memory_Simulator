@@ -13,7 +13,7 @@ public class PageTableEntry {
         this.virtualPageNr = virtualPageNr;
         this.physicalPageNr = physicalPageNr;
 
-        if(isMapped) {
+        if (isMapped) {
             this.enterTime = new Time(System.currentTimeMillis());
         } else {
             this.enterTime = Time.valueOf("00:00:00");
@@ -48,4 +48,7 @@ public class PageTableEntry {
         this.physicalPageNr = physicalPageNr;
     }
 
+    public void setVirtualPageNr(int virtualPageNr) {
+        this.virtualPageNr = virtualPageNr;
+    }
 }

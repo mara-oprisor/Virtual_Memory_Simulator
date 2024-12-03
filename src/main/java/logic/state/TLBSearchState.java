@@ -4,7 +4,7 @@ import view.UIController;
 
 import java.awt.*;
 
-public class TLBSearchState implements State{
+public class TLBSearchState implements State {
     public void execute(UIController context) {
         context.getUi().getInfoArea().setText("\nWe search for the page in the TLB.\n");
         context.getUi().getTlbTable().setBackground(Color.YELLOW);

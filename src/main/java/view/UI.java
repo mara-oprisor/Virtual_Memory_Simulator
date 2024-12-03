@@ -36,7 +36,6 @@ public class UI extends JFrame {
     private final JPanel infoPanel = new JPanel(new BorderLayout());
     private final JTextArea infoArea = new JTextArea("Please Configure Memory Settings.");
     private final JButton nextStep = new JButton("Next");
-    private final JButton fastForward = new JButton("Fast Forward");
     private final JPanel physicalMemoryPanel = new JPanel(new BorderLayout());
     private final String[] memoryColumnNames = {"Physical Page Number", "Content"};
     private final JTable memoryTable = new JTable(new Object[10][2], memoryColumnNames);
@@ -232,10 +231,9 @@ public class UI extends JFrame {
         JScrollPane areaScrollPane = new JScrollPane(infoArea);
         areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         infoPanel.add(areaScrollPane, BorderLayout.CENTER);
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         buttonPanel.add(new Label(" "));
         buttonPanel.add(nextStep);
-        buttonPanel.add(fastForward);
         buttonPanel.add(new JLabel(" "));
         infoPanel.add(buttonPanel, BorderLayout.SOUTH);
     }

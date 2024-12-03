@@ -28,23 +28,23 @@ public class ScenariosManager {
         Random random = new Random();
 
         List<Integer> TLBPages = new ArrayList<>();
-        for(PageTableEntry entry: simulationManager.getTlb().getEntries()) {
+        for (PageTableEntry entry : simulationManager.getTlb().getEntries()) {
             int pageNr = entry.getVirtualPageNr();
             TLBPages.add(pageNr);
         }
 
-        if(fromTLB) {
-            for(Integer pageNr: TLBPages) {
-                for(int offset = 0; offset < pageSize; offset++) {
+        if (fromTLB) {
+            for (Integer pageNr : TLBPages) {
+                for (int offset = 0; offset < pageSize; offset++) {
                     int address = pageNr * pageSize + offset;
                     mappedAddresses.add(address);
                 }
             }
         } else {
             List<Integer> pages = tableManager.extractMappedPages(simulationManager.getPageTable());
-            for(Integer pageNr: pages) {
-                if(!TLBPages.contains(pageNr)) {
-                    for(int offset = 0; offset < pageSize; offset++) {
+            for (Integer pageNr : pages) {
+                if (!TLBPages.contains(pageNr)) {
+                    for (int offset = 0; offset < pageSize; offset++) {
                         int address = pageNr * pageSize + offset;
                         mappedAddresses.add(address);
                     }
@@ -62,8 +62,8 @@ public class ScenariosManager {
         Random random = new Random();
 
         List<Integer> pages = tableManager.extractUnmappedPages(simulationManager.getPageTable());
-        for(Integer pageNr: pages) {
-            for(int offset = 0; offset < pageSize; offset++) {
+        for (Integer pageNr : pages) {
+            for (int offset = 0; offset < pageSize; offset++) {
                 int address = pageNr * pageSize + offset;
                 unmappedAddresses.add(address);
             }
@@ -75,13 +75,13 @@ public class ScenariosManager {
     private List<Integer> generateAddresses(int typeInstruction) {
         List<Integer> addresses = new ArrayList<>();
 
-        if(typeInstruction == 0) {
+        if (typeInstruction == 0) {
             addresses.add(generateMappedAddress(true));
             addresses.add(generateMappedAddress(true));
-        } else if(typeInstruction == 1) {
+        } else if (typeInstruction == 1) {
             addresses.add(generateMappedAddress(false));
             addresses.add(generateMappedAddress(false));
-        } else if(typeInstruction == 2) {
+        } else if (typeInstruction == 2) {
             addresses.add(generateUnmappedAddress());
             addresses.add(generateUnmappedAddress());
         }
@@ -94,9 +94,9 @@ public class ScenariosManager {
         boolean isLoadOperation = true;
 
         StringBuilder sb = new StringBuilder();
-        for(Integer address: addresses) {
+        for (Integer address : addresses) {
             String addressHex = String.format("0x%02X", address);
-            if(isLoadOperation) {
+            if (isLoadOperation) {
                 sb.append("load R0, ").append(addressHex).append("\n");
                 isLoadOperation = false;
             } else {
@@ -112,7 +112,7 @@ public class ScenariosManager {
         this.instructions.clear();
 
         String[] listInstructions = instructions.split("\n");
-        for(String instruction: listInstructions) {
+        for (String instruction : listInstructions) {
             this.instructions.add(Instruction.parseInstruction(instruction, simulationManager.getPageSize()));
         }
     }
@@ -120,7 +120,7 @@ public class ScenariosManager {
     public VirtualAddress loadInstruction() {
         VirtualAddress virtualAddress = null;
 
-        if(!this.instructions.isEmpty()) {
+        if (!this.instructions.isEmpty()) {
             Instruction firstInstruction = this.instructions.getFirst();
             virtualAddress = firstInstruction.getVirtualAddress();
         }
@@ -132,17 +132,17 @@ public class ScenariosManager {
         Instruction currentInstruction = this.instructions.getFirst();
         VirtualAddress virtualAddress = currentInstruction.getVirtualAddress();
 
-        if(currentInstruction.getType().equals("LOAD")) {
+        if (currentInstruction.getType().equals("LOAD")) {
             registers.setRegisterValue(currentInstruction.getRegister(), value);
-        } else if(currentInstruction.getType().equals("STORE")) {
-           String regValue = registers.getRegisterValue(currentInstruction.getRegister());
-           simulationManager.storeValueToMemory(pageNr, virtualAddress.getOffset(), regValue);
+        } else if (currentInstruction.getType().equals("STORE")) {
+            String regValue = registers.getRegisterValue(currentInstruction.getRegister());
+            simulationManager.storeValueToMemory(pageNr, virtualAddress.getOffset(), regValue);
         }
 
         this.instructions.removeFirst();
 
         StringBuilder sb = new StringBuilder();
-        for(Instruction instruction: instructions) {
+        for (Instruction instruction : instructions) {
             sb.append(instruction.toString()).append("\n");
         }
         return String.valueOf(sb);

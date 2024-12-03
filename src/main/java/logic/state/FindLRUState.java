@@ -5,13 +5,15 @@ import view.UIController;
 import java.awt.*;
 import java.util.List;
 
-public class FindLRUState implements State{
+public class FindLRUState implements State {
     private int pageNr;
     private List<String> dataFromDisk;
+
     public FindLRUState(int pageNr, List<String> dataFromDisk) {
         this.pageNr = pageNr;
         this.dataFromDisk = dataFromDisk;
     }
+
     public void execute(UIController context) {
         context.getUi().getInfoArea().append("\nThe least recently used page is: ");
 

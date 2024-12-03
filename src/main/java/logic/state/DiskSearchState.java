@@ -6,11 +6,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiskSearchState implements State{
+public class DiskSearchState implements State {
     private int pageNr;
+
     public DiskSearchState(int pageNr) {
         this.pageNr = pageNr;
     }
+
     public void execute(UIController context) {
         context.getUi().getInfoArea().setForeground(Color.BLACK);
         context.getUi().getInfoArea().setText("\nWe search for the page in the Disk.\n");

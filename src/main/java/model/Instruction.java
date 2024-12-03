@@ -1,6 +1,5 @@
 package model;
 
-
 public class Instruction {
     private final String type;
     private final int register;
@@ -12,7 +11,7 @@ public class Instruction {
         this.virtualAddress = virtualAddress;
     }
 
-    public static Instruction parseInstruction(String instruction, int pageSize){
+    public static Instruction parseInstruction(String instruction, int pageSize) {
         String[] parts = instruction.split(" ");
         String type = parts[0].toUpperCase();
         int register = Integer.parseInt(parts[1].substring(1, 2));
@@ -24,7 +23,7 @@ public class Instruction {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(type.equals("LOAD")) {
+        if (type.equals("LOAD")) {
             sb.append("Load R");
         } else {
             sb.append("Store R");

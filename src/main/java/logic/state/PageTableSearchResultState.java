@@ -17,7 +17,7 @@ public class PageTableSearchResultState implements State{
             context.getUi().getInfoArea().setForeground(Color.GREEN);
             context.getUi().highlightPageTableEntry(pageNr, Color.GREEN);
 
-            context.setCurrentState(new PhysicalPageExtractionState(pageNr));
+            context.setCurrentState(new UpdateEntryTimeState(pageNr, false));
         } else {
             context.getUi().getInfoArea().append("\nPage was not found in the Physical Memory.");
             context.getUi().getInfoArea().setForeground(Color.RED);

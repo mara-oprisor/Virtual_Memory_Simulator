@@ -5,7 +5,7 @@ import view.UIController;
 import java.awt.*;
 import java.util.List;
 
-public class InterchangeDiskAndPhysMemState implements State{
+public class InterchangeDiskAndPhysMemState implements State {
     private int pageNrFromDisk;
     private List<String> dataFromDisk;
     private int physicalPageNr;

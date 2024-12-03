@@ -5,6 +5,7 @@ import model.PageTableEntry;
 import model.TLB;
 import util.JSONUtil;
 
+import java.sql.Time;
 import java.util.*;
 
 public class TableManager {
@@ -18,15 +19,15 @@ public class TableManager {
         }
         Collections.shuffle(virtualPageIndices, rand);
 
-        for(int i = 0; i < nrVirtualPages; i++) {
+        for (int i = 0; i < nrVirtualPages; i++) {
             int virtualPageNr = virtualPageIndices.get(i);
             int physicalPageNr;
             boolean isMapped;
 
-            if(i < nrPhysicalPages) {
+            if (i < nrPhysicalPages) {
                 do {
                     physicalPageNr = rand.nextInt(nrPhysicalPages);
-                } while(physicalMappings.contains(physicalPageNr));
+                } while (physicalMappings.contains(physicalPageNr));
 
                 physicalMappings.add(physicalPageNr);
                 isMapped = true;
@@ -41,7 +42,7 @@ public class TableManager {
 
         int index = 1;
         Collections.shuffle(pageTable.getEntries());
-        for(PageTableEntry entry: pageTable.getEntries()) {
+        for (PageTableEntry entry : pageTable.getEntries()) {
             entry.setIndex(index++);
         }
     }
@@ -61,6 +62,7 @@ public class TableManager {
         int entriesToAdd = Math.min(tlbEntries, validEntries.size());
         for (int i = 0; i < entriesToAdd; i++) {
             PageTableEntry entry = validEntries.get(i);
+            entry.setEnterTime(new Time(System.currentTimeMillis()));
             tlb.addEntry(entry);
         }
 
@@ -73,8 +75,8 @@ public class TableManager {
 
     public List<Integer> extractUnmappedPages(PageTable pageTable) {
         List<Integer> pages = new ArrayList<>();
-        for(PageTableEntry entry: pageTable.getEntries()) {
-            if(entry.getPhysicalPageNr() == -1) {
+        for (PageTableEntry entry : pageTable.getEntries()) {
+            if (entry.getPhysicalPageNr() == -1) {
                 pages.add(entry.getVirtualPageNr());
             }
         }
@@ -84,8 +86,8 @@ public class TableManager {
 
     public List<Integer> extractMappedPages(PageTable pageTable) {
         List<Integer> pages = new ArrayList<>();
-        for(PageTableEntry entry: pageTable.getEntries()) {
-            if(entry.getPhysicalPageNr() != -1) {
+        for (PageTableEntry entry : pageTable.getEntries()) {
+            if (entry.getPhysicalPageNr() != -1) {
                 pages.add(entry.getVirtualPageNr());
             }
         }

@@ -14,8 +14,8 @@ public class ReplacementManager {
     }
 
     public void changeDataFromDisk(int pageNr, int virtualPageNr, List<String> dataToBeReplaced) {
-        simulationManager.deleteValueFromDisk(pageNr);
-        simulationManager.storeValueToDisk(virtualPageNr, dataToBeReplaced);
+        simulationManager.deleteValuesFromDisk(pageNr);
+        simulationManager.storeValuesToDisk(virtualPageNr, dataToBeReplaced);
         simulationManager.createDisk();
     }
 

@@ -6,9 +6,11 @@ import java.awt.*;
 
 public class PhysicalPageExtractionState implements State {
     private int pageNr;
+
     public PhysicalPageExtractionState(int pageNr) {
         this.pageNr = pageNr;
     }
+
     public void execute(UIController context) {
         int physicalPageNumber = context.getSimulationManager().getPhysicalPagePageTable(pageNr);
         context.getUi().getInfoArea().setForeground(Color.BLACK);

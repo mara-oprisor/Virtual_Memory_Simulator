@@ -4,13 +4,15 @@ import view.UIController;
 
 import java.awt.*;
 
-public class OffsetComputationState implements State{
+public class OffsetComputationState implements State {
     private int pageNr;
     private int physicalPageNumber;
+
     public OffsetComputationState(int pageNr, int physicalPageNumber) {
         this.pageNr = pageNr;
         this.physicalPageNumber = physicalPageNumber;
     }
+
     public void execute(UIController context) {
         context.getUi().resetHighlights(context.getUi().getPageTable());
         context.getUi().resetHighlights(context.getUi().getTlbTable());
@@ -24,6 +26,6 @@ public class OffsetComputationState implements State{
         context.getUi().getPhysicalOffset().setBackground(Color.CYAN);
         context.getUi().getPhysicalOffset().setText(String.valueOf(offset));
 
-        context.setCurrentState(new AddressCalculationState(physicalPageNumber, pageNr, offset));
+        context.setCurrentState(new AddressComputationState(physicalPageNumber, pageNr, offset));
     }
 }

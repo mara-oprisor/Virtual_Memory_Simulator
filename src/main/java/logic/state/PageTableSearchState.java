@@ -6,9 +6,11 @@ import java.awt.*;
 
 public class PageTableSearchState implements State {
     private int pageNr;
+
     public PageTableSearchState(int pageNr) {
         this.pageNr = pageNr;
     }
+
     public void execute(UIController context) {
         context.getUi().resetHighlights(context.getUi().getPageTable());
         context.getUi().resetHighlights(context.getUi().getTlbTable());

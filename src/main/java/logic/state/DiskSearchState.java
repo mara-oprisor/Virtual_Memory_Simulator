@@ -3,7 +3,6 @@ package logic.state;
 import view.UIController;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DiskSearchState implements State {
@@ -20,6 +19,6 @@ public class DiskSearchState implements State {
 
         List<String> data = context.getSimulationManager().getDataFromDisk(pageNr);
 
-        context.setCurrentState(new FindLRUState(pageNr, data));
+        context.setCurrentState(new FindReplacementPageState(pageNr, data));
     }
 }

@@ -6,6 +6,6 @@ public class Main {
     public static void main(String[] args) {
         UI ui = new UI();
         SimulationManager simulationManager = new SimulationManager();
-        UIController controller = new UIController(ui, simulationManager);
+        new UIController(ui, simulationManager);
     }
 }

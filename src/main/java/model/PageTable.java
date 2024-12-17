@@ -1,13 +1,12 @@
 package model;
 
-import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class PageTable {
     private final int nrOfEntries;
-    private final List<PageTableEntry> entries;
+    private List<PageTableEntry> entries;
 
     public PageTable(int nrOfEntries) {
         this.nrOfEntries = nrOfEntries;
@@ -49,11 +48,11 @@ public class PageTable {
     }
 
     public Integer[] getLRUPage() {
-        Time lruTime = new Time(Long.MAX_VALUE);
+        LocalTime lruTime = LocalTime.MAX;
         int indexLRU = -1;
         for (int i = 0; i < nrOfEntries; i++) {
             if (entries.get(i).getPhysicalPageNr() != -1) {
-                if (lruTime.after(entries.get(i).getEnterTime())) {
+                if (entries.get(i).getEnterTime().isBefore(lruTime)) {
                     lruTime = entries.get(i).getEnterTime();
                     indexLRU = i;
                 }
@@ -65,24 +64,56 @@ public class PageTable {
         return new Integer[]{lruPage.getVirtualPageNr(), lruPage.getPhysicalPageNr()};
     }
 
-    public void replacePage(int virtualPage, int physicalPage, int virtualPageRemoved) {
-        for (PageTableEntry entry : entries) {
-            if (entry.getVirtualPageNr() == virtualPageRemoved) {
-                entry.setPhysicalPageNr(-1);
+    public Integer[] getFirstInPage() {
+        for (int i = 0; i < nrOfEntries; i++) {
+            if (entries.get(i).getPhysicalPageNr() != -1) {
+                return new Integer[]{entries.get(i).getVirtualPageNr(), entries.get(i).getPhysicalPageNr()};
             }
         }
 
-        for (PageTableEntry entry : entries) {
-            if (entry.getVirtualPageNr() == virtualPage) {
-                entry.setPhysicalPageNr(physicalPage);
+        return new Integer[]{-1, -1};
+    }
+
+    public void replacePage(int virtualPage, int physicalPage, int virtualPageRemoved, String replacementPolicy) {
+        if (replacementPolicy.equals("LRU")) {
+            for (PageTableEntry entry : entries) {
+                if (entry.getVirtualPageNr() == virtualPageRemoved) {
+                    entry.setPhysicalPageNr(-1);
+                    entry.setEnterTime(LocalTime.MIN);
+                }
             }
+
+            for (PageTableEntry entry : entries) {
+                if (entry.getVirtualPageNr() == virtualPage) {
+                    entry.setPhysicalPageNr(physicalPage);
+                    entry.setEnterTime(LocalTime.now());
+                }
+            }
+        } else {
+            int index = 1;
+            List<PageTableEntry> newEntries = new ArrayList<>();
+
+            for (PageTableEntry entry : entries) {
+                if (entry.getVirtualPageNr() == virtualPageRemoved) {
+                    entry.setPhysicalPageNr(-1);
+                    entry.setIndex(index++);
+                    newEntries.add(entry);
+                } else if (entry.getVirtualPageNr() != virtualPage) {
+                    entry.setIndex(index++);
+                    newEntries.add(entry);
+                }
+            }
+            newEntries.add(new PageTableEntry(index, virtualPage, physicalPage, true));
+
+            this.entries = newEntries;
         }
+
     }
 
     public void updateTimeStamp(int pageNr) {
         for (PageTableEntry entry : entries) {
             if (entry.getVirtualPageNr() == pageNr) {
-                entry.setEnterTime(new Time(System.currentTimeMillis()));
+                entry.setEnterTime(LocalTime.now());
             }
         }
     }

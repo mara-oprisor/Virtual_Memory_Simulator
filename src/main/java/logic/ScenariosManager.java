@@ -4,6 +4,7 @@ import model.Instruction;
 import model.PageTableEntry;
 import model.Registers;
 import model.VirtualAddress;
+import util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,36 +73,46 @@ public class ScenariosManager {
         return unmappedAddresses.get(random.nextInt(unmappedAddresses.size() - 1));
     }
 
-    private List<Integer> generateAddresses(int typeInstruction) {
-        List<Integer> addresses = new ArrayList<>();
-
-        if (typeInstruction == 0) {
-            addresses.add(generateMappedAddress(true));
-            addresses.add(generateMappedAddress(true));
-        } else if (typeInstruction == 1) {
-            addresses.add(generateMappedAddress(false));
-            addresses.add(generateMappedAddress(false));
-        } else if (typeInstruction == 2) {
-            addresses.add(generateUnmappedAddress());
-            addresses.add(generateUnmappedAddress());
+    private Integer generateAddress(int typeInstruction) {
+        if (typeInstruction == 3) {
+            Random random = new Random();
+            typeInstruction = Math.abs(random.nextInt()) % 3;
         }
 
-        return addresses;
+        if (typeInstruction == 0) {
+            return generateMappedAddress(true);
+        } else if (typeInstruction == 1) {
+            return generateMappedAddress(false);
+        } else {
+            return generateUnmappedAddress();
+        }
     }
 
-    public String generateInstructions(int typeInstruction) {
-        List<Integer> addresses = generateAddresses(typeInstruction);
-        boolean isLoadOperation = true;
-
+    public String generateInstructions(int typeInstruction, int nrInstruction) {
+        Random random = new Random();
         StringBuilder sb = new StringBuilder();
-        for (Integer address : addresses) {
-            String addressHex = String.format("0x%02X", address);
-            if (isLoadOperation) {
-                sb.append("load R0, ").append(addressHex).append("\n");
-                isLoadOperation = false;
-            } else {
-                sb.append("store R0, ").append(addressHex).append("\n");
-                isLoadOperation = true;
+
+        if (nrInstruction == 2) {
+            int address1 = generateAddress(Math.abs(random.nextInt()) % 3);
+            int address2 = generateAddress(Math.abs(random.nextInt()) % 3);
+            String addressHex1 = String.format("0x%02X", address1);
+            String addressHex2 = String.format("0x%02X", address2);
+            sb.append("load R0, ").append(addressHex1).append("\n");
+            sb.append("store R0, ").append(addressHex2).append("\n");
+        } else {
+            for (int i = 0; i <= nrInstruction; i++) {
+                Integer address = generateAddress(typeInstruction);
+                String addressHex = String.format("0x%02X", address);
+                boolean isLoadOperation = random.nextBoolean();
+                int register = Math.abs(random.nextInt()) % 4;
+
+                if (isLoadOperation) {
+                    sb.append("load R");
+                } else {
+                    sb.append("store R");
+                }
+
+                sb.append(register).append(", ").append(addressHex).append("\n");
             }
         }
 
@@ -134,6 +145,7 @@ public class ScenariosManager {
 
         if (currentInstruction.getType().equals("LOAD")) {
             registers.setRegisterValue(currentInstruction.getRegister(), value);
+            FileUtil.writeToFile(FileUtil.formatRegisters(registers.getValues()), "registers.txt");
         } else if (currentInstruction.getType().equals("STORE")) {
             String regValue = registers.getRegisterValue(currentInstruction.getRegister());
             simulationManager.storeValueToMemory(pageNr, virtualAddress.getOffset(), regValue);
@@ -146,5 +158,14 @@ public class ScenariosManager {
             sb.append(instruction.toString()).append("\n");
         }
         return String.valueOf(sb);
+    }
+
+    public void resetRegisters() {
+        registers.resetRegisters();
+        FileUtil.writeToFile(FileUtil.formatRegisters(registers.getValues()), "registers.txt");
+    }
+
+    public void resetInstructions() {
+        this.instructions.clear();
     }
 }

@@ -3,9 +3,8 @@ package logic;
 import model.PageTable;
 import model.PageTableEntry;
 import model.TLB;
-import util.JSONUtil;
 
-import java.sql.Time;
+import java.time.LocalTime;
 import java.util.*;
 
 public class TableManager {
@@ -49,6 +48,7 @@ public class TableManager {
 
     public void populateTLB(int tlbEntries, TLB tlb, PageTable pageTable) {
         Random rand = new Random();
+        LocalTime currTime = LocalTime.now();
 
         List<PageTableEntry> validEntries = new ArrayList<>();
         for (PageTableEntry entry : pageTable.getEntries()) {
@@ -62,7 +62,7 @@ public class TableManager {
         int entriesToAdd = Math.min(tlbEntries, validEntries.size());
         for (int i = 0; i < entriesToAdd; i++) {
             PageTableEntry entry = validEntries.get(i);
-            entry.setEnterTime(new Time(System.currentTimeMillis()));
+            entry.setEnterTime(currTime.plusSeconds(i));
             tlb.addEntry(entry);
         }
 

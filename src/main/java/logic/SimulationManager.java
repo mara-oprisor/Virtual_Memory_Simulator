@@ -101,8 +101,12 @@ public class SimulationManager {
         physicalMemory.replaceData(page, data);
     }
 
-    public void changePageTable(int virtualPage, int physicalPage, int virtualPageRemoved) {
-        pageTable.replacePage(virtualPage, physicalPage, virtualPageRemoved);
+    public void changePageTable(int virtualPage, int physicalPage, int virtualPageRemoved, String replacementPolicy) {
+        pageTable.replacePage(virtualPage, physicalPage, virtualPageRemoved, replacementPolicy);
+    }
+
+    public void updateTLBFIFO() {
+        tlb.updateFIFO(pageTable.getEntries());
     }
 
     public void updateTimeStamp(boolean inTLB, int pageNr) {

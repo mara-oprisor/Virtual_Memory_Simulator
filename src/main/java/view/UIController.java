@@ -27,7 +27,6 @@ public class UIController {
         this.scenariosManager = new ScenariosManager(simulationManager);
         this.replacementManager = new ReplacementManager(simulationManager);
         this.currentState = new IdleState();
-        validateInput();
         startSimulation();
         generateScenarios();
         loadInstructionToSimulation();
@@ -70,119 +69,188 @@ public class UIController {
         return inputData;
     }
 
-    private void validateInput() {
-        ui.getValidateButton().addActionListener(e -> {
-            HashMap<String, Integer> inputData = getInputData();
-            boolean isValid = true;
-            StringBuilder errorMessage = new StringBuilder("Please correct the following errors:\n");
+    private boolean validateInput() {
+        HashMap<String, Integer> inputData = getInputData();
+        boolean isValid = true;
+        StringBuilder errorMessage = new StringBuilder("Please correct the following errors:\n");
 
-            if (!inputData.containsKey("vmSize")) {
-                String vmSizeText = ui.getVirtualMemSizeField().getText().trim();
-                if (vmSizeText.isEmpty()) {
-                    errorMessage.append("- Virtual Memory Size field cannot be empty.\n");
-                } else {
-                    errorMessage.append("- Virtual Memory Size must be an integer.\n");
-                }
-                isValid = false;
-            } else if (inputData.get("vmSize") <= 0) {
-                errorMessage.append("- Virtual Memory Size must be positive.\n");
-                isValid = false;
-            }
-
-
-            if (!inputData.containsKey("physMem")) {
-                String pageSizeText = ui.getPhysicalMemSizeField().getText().trim();
-                if (pageSizeText.isEmpty()) {
-                    errorMessage.append("- Physical Memory Size field cannot be empty.\n");
-                } else {
-                    errorMessage.append("- Physical Memory Size must be an integer.\n");
-                }
-                isValid = false;
-            } else if (inputData.get("physMem") <= 0) {
-                errorMessage.append("- Physical Memory Size must be positive.\n");
-                isValid = false;
-            }
-
-
-            if (!inputData.containsKey("offsetBits")) {
-                String offsetBitsText = ui.getOffsetBitsField().getText().trim();
-                if (offsetBitsText.isEmpty()) {
-                    errorMessage.append("- Offset Bits field cannot be empty.\n");
-                } else {
-                    errorMessage.append("- Offset Bits must be an integer.\n");
-                }
-                isValid = false;
-            } else if (inputData.get("offsetBits") <= 0) {
-                errorMessage.append("- Offset Bits must be positive.\n");
-                isValid = false;
-            }
-
-
-            if (!inputData.containsKey("tlbEntries")) {
-                String tlbEntriesText = ui.getTlbEntriesField().getText().trim();
-                if (tlbEntriesText.isEmpty()) {
-                    errorMessage.append("- Number of TLB Entries field cannot be empty.\n");
-                } else {
-                    errorMessage.append("- Number of TLB Entries must be an integer.\n");
-                }
-                isValid = false;
-            } else if (inputData.get("tlbEntries") <= 0) {
-                errorMessage.append("- Number of TLB Entries must be positive.\n");
-                isValid = false;
-            }
-
-
-            if (isValid) {
-                JOptionPane.showMessageDialog(ui, "All inputs are valid! You can start the simulation!", "Validation Successful", JOptionPane.INFORMATION_MESSAGE);
+        String vmSizeText = ui.getVirtualMemSizeField().getText().trim();
+        if (!inputData.containsKey("vmSize")) {
+            if (vmSizeText.isEmpty()) {
+                errorMessage.append("- Virtual Memory Size field cannot be empty.\n");
             } else {
-                JOptionPane.showMessageDialog(ui, errorMessage.toString(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+                errorMessage.append("- Virtual Memory Size must be an integer.\n");
             }
-        });
+            isValid = false;
+        } else if (inputData.get("vmSize") <= 0) {
+            errorMessage.append("- Virtual Memory Size must be positive.\n");
+            isValid = false;
+        }
+
+        String pmSizeText = ui.getPhysicalMemSizeField().getText().trim();
+        if (!inputData.containsKey("physMem")) {
+            if (pmSizeText.isEmpty()) {
+                errorMessage.append("- Physical Memory Size field cannot be empty.\n");
+            } else {
+                errorMessage.append("- Physical Memory Size must be an integer.\n");
+            }
+            isValid = false;
+        } else if (inputData.get("physMem") <= 0) {
+            errorMessage.append("- Physical Memory Size must be positive.\n");
+            isValid = false;
+        }
+
+        if (isValid) {
+            if (Integer.parseInt(vmSizeText) < Integer.parseInt(pmSizeText)) {
+                isValid = false;
+                errorMessage.append("- Physical address cannot have more bits then the virtual address.\n");
+            } else if (Integer.parseInt(vmSizeText) == Integer.parseInt(pmSizeText)) {
+                isValid = false;
+                errorMessage.append("- Physical address cannot have the same size as the virtual address.\n");
+            }
+        }
+
+        String offsetBitsText = ui.getOffsetBitsField().getText().trim();
+        if (!inputData.containsKey("offsetBits")) {
+            if (offsetBitsText.isEmpty()) {
+                errorMessage.append("- Offset Bits field cannot be empty.\n");
+            } else {
+                errorMessage.append("- Offset Bits must be an integer.\n");
+            }
+            isValid = false;
+        } else if (inputData.get("offsetBits") <= 0) {
+            errorMessage.append("- Offset Bits must be positive.\n");
+            isValid = false;
+        }
+
+        if (isValid) {
+            if (Integer.parseInt(offsetBitsText) >= Integer.parseInt(pmSizeText)) {
+                errorMessage.append("- The offset number of bits cannot be grater or equal to the number of bits of the physical address.\n");
+                isValid = false;
+            }
+        }
+
+        String tlbEntriesText = ui.getTlbEntriesField().getText().trim();
+        if (!inputData.containsKey("tlbEntries")) {
+            if (tlbEntriesText.isEmpty()) {
+                errorMessage.append("- Number of TLB Entries field cannot be empty.\n");
+            } else {
+                errorMessage.append("- Number of TLB Entries must be an integer.\n");
+            }
+            isValid = false;
+        } else if (inputData.get("tlbEntries") <= 0) {
+            errorMessage.append("- Number of TLB Entries must be positive.\n");
+            isValid = false;
+        }
+
+        if (isValid) {
+            int physicalPages = (int) Math.pow(2, Integer.parseInt(pmSizeText) - Integer.parseInt(offsetBitsText));
+            if (physicalPages < 2 * Integer.parseInt(tlbEntriesText)) {
+                errorMessage.append(" -There are too many TLB entries. There should be less than the number of the physical pages.\n");
+                isValid = false;
+            }
+        }
+
+
+        if (isValid) {
+            JOptionPane.showMessageDialog(ui, "All inputs are valid! You can start the simulation!", "Validation Successful", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(ui, errorMessage.toString(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return isValid;
     }
 
     private void startSimulation() {
         ui.getStartButton().addActionListener(e -> {
-            HashMap<String, Integer> inputData = getInputData();
-            String startInfo = simulationManager.initialiseSimulation(inputData);
-            ui.getInfoArea().setText(startInfo);
-            fillPageTable();
-            fillTLB();
-            fillPhysicalMemoryTable();
+            if (validateInput()) {
+                HashMap<String, Integer> inputData = getInputData();
+                String replacementPolicy = String.valueOf(ui.getReplacementPolicy().getSelectedItem());
+                replacementManager.setReplacementPolicy(replacementPolicy);
+                String startInfo = simulationManager.initialiseSimulation(inputData);
+                ui.getInfoArea().setText(startInfo);
+                fillPageTable();
+                fillTLB();
+                fillPhysicalMemoryTable();
+            }
         });
     }
 
     public void fillPageTable() {
         PageTable pageTable = simulationManager.getPageTable();
-        String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-
-        for (PageTableEntry entry : pageTable.getEntries()) {
-            Object[] row = {
-                    entry.getIndex(),
-                    entry.getVirtualPageNr(),
-                    entry.getPhysicalPageNr()
-            };
-            model.addRow(row);
+        String[] columnNames;
+        if (replacementManager.getReplacementPolicy().equals("LRU")) {
+            columnNames = new String[]{"Index", "Virtual Page Number", "Physical Page Number", "Entry Time"};
+        } else {
+            columnNames = new String[]{"Index", "Virtual Page Number", "Physical Page Number"};
         }
+        DefaultTableModel model = getPageTableModel(columnNames, pageTable);
 
         ui.getPageTable().setModel(model);
     }
 
-    public void fillTLB() {
-        TLB tlb = simulationManager.getTlb();
-        String[] columnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
+    private static DefaultTableModel getPageTableModel(String[] columnNames, PageTable pageTable) {
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        int index = 1;
 
-        for (PageTableEntry entry : tlb.getEntries()) {
-            Object[] row = {
-                    entry.getIndex(),
-                    entry.getVirtualPageNr(),
-                    entry.getPhysicalPageNr()
-            };
+        for (PageTableEntry entry : pageTable.getEntries()) {
+            Object[] row;
+            if (columnNames.length == 4) {
+                row = new Object[]{
+                        index++,
+                        entry.getVirtualPageNr(),
+                        entry.getPhysicalPageNr(),
+                        entry.getFormattedEnterTime()
+                };
+            } else {
+                row = new Object[]{
+                        index++,
+                        entry.getVirtualPageNr(),
+                        entry.getPhysicalPageNr()
+                };
+            }
             model.addRow(row);
         }
+        return model;
+    }
 
+    public void fillTLB() {
+        TLB tlb = simulationManager.getTlb();
+        String[] columnNames;
+
+        if (replacementManager.getReplacementPolicy().equals("LRU")) {
+            columnNames = new String[]{"Index", "Virtual Page Number", "Physical Page Number", "Entry Time"};
+        } else {
+            columnNames = new String[]{"Index", "Virtual Page Number", "Physical Page Number"};
+        }
+
+        DefaultTableModel model = getTLBTableModel(columnNames, tlb);
         ui.getTlbTable().setModel(model);
+    }
+
+    private static DefaultTableModel getTLBTableModel(String[] columnNames, TLB tlb) {
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        int index = 1;
+
+        for (PageTableEntry entry : tlb.getEntries()) {
+            Object[] row;
+            if (columnNames.length == 4) {
+                row = new Object[]{
+                        index++,
+                        entry.getVirtualPageNr(),
+                        entry.getPhysicalPageNr(),
+                        entry.getFormattedEnterTime()
+                };
+            } else {
+                row = new Object[]{
+                        index++,
+                        entry.getVirtualPageNr(),
+                        entry.getPhysicalPageNr()
+                };
+            }
+            model.addRow(row);
+        }
+        return model;
     }
 
     public void fillPhysicalMemoryTable() {
@@ -205,18 +273,27 @@ public class UIController {
     private void generateScenarios() {
         ui.getSeeScenario().addActionListener(e -> {
             int typeInstruction = -1;
+            int nrInstructions = -1;
             if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in TLB")) {
                 typeInstruction = 0;
+                nrInstructions = 7;
             } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find in PageTable")) {
                 typeInstruction = 1;
+                nrInstructions = 7;
             } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Find on Disk")) {
                 typeInstruction = 2;
+                nrInstructions = 7;
+            } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Simple Load&Store")) {
+                typeInstruction = 3;
+                nrInstructions = 2;
+            } else if (Objects.equals(String.valueOf(ui.getScenarioComboBox().getSelectedItem()), "Mix of Operations")) {
+                typeInstruction = 3;
+                nrInstructions = 7;
             }
 
-            String instructions = scenariosManager.generateInstructions(typeInstruction);
-            ui.getInstructions().setText(instructions);
-
+            String instructions = scenariosManager.generateInstructions(typeInstruction, nrInstructions);
             scenariosManager.setInstructions(instructions);
+            ui.getInstructions().setText(instructions);
         });
     }
 
@@ -252,9 +329,17 @@ public class UIController {
             ui.getVirtualPageNumber().setText("");
             ui.getVirtualOffset().setText("");
 
+            ui.getVirtualAddressHex().setBackground(Color.WHITE);
+            ui.getVirtualPageNumber().setBackground(Color.WHITE);
+            ui.getVirtualOffset().setBackground(Color.WHITE);
+
             ui.getPhysicalAddressHex().setText("");
             ui.getPhysicalPageNumber().setText("");
             ui.getPhysicalOffset().setText("");
+
+            ui.getPhysicalAddressHex().setBackground(Color.WHITE);
+            ui.getPhysicalPageNumber().setBackground(Color.WHITE);
+            ui.getPhysicalOffset().setBackground(Color.WHITE);
 
             ui.getInfoArea().setForeground(Color.BLACK);
             ui.getInfoArea().setText("Please Configure Memory Settings.");
@@ -273,6 +358,9 @@ public class UIController {
             ui.getTlbTable().setBackground(Color.WHITE);
             ui.getVirtualPageNumber().setBackground(Color.WHITE);
             ui.getPageTable().setBackground(Color.WHITE);
+
+            scenariosManager.resetRegisters();
+            scenariosManager.resetInstructions();
         });
     }
 

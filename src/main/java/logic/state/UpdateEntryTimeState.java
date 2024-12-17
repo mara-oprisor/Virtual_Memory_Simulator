@@ -5,6 +5,8 @@ import view.UIController;
 
 import java.awt.*;
 import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class UpdateEntryTimeState implements State {
     private int pageNr;
@@ -16,24 +18,26 @@ public class UpdateEntryTimeState implements State {
     }
 
     public void execute(UIController context) {
-        if (isInTLB) {
-            context.getSimulationManager().updateTimeStamp(true, pageNr);
-        } else {
-            context.getSimulationManager().updateTimeStamp(false, pageNr);
+        if (context.getReplacementManager().getReplacementPolicy().equals("LRU")) {
+            if (isInTLB) {
+                context.getSimulationManager().updateTimeStamp(true, pageNr);
+            } else {
+                context.getSimulationManager().updateTimeStamp(false, pageNr);
 
-            PageTableEntry usedPage = context.getSimulationManager().getPageTable().getEntry(pageNr);
-            Object[] lruEntry = context.getSimulationManager().getTlb().getLRUEntry();
-            Time entryTime = (Time) lruEntry[1];
+                PageTableEntry usedPage = context.getSimulationManager().getPageTable().getEntry(pageNr);
+                Object[] lruEntry = context.getSimulationManager().getTlb().getLRUEntry();
+                LocalTime entryTime = (LocalTime) lruEntry[1];
 
-            if (usedPage.getEnterTime().after(entryTime)) {
-                context.getSimulationManager().getTlb().replaceEntry(usedPage, (int) lruEntry[0]);
+                if (usedPage.getEnterTime().isAfter(entryTime)) {
+                    context.getSimulationManager().getTlb().replaceEntry(usedPage, (int) lruEntry[0]);
 
-                context.fillPageTable();
-                context.fillTLB();
-                context.getUi().highlightPageTableEntry(pageNr, Color.GREEN);
+                    context.fillPageTable();
+                    context.getUi().highlightPageTableEntry(pageNr, Color.GREEN);
+                }
             }
         }
-
+        
+        context.fillTLB();
         context.setCurrentState(new PhysicalPageExtractionState(pageNr));
     }
 }

@@ -1,12 +1,13 @@
 package model;
 
-import java.sql.Time;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class PageTableEntry {
     private int index;
     private int virtualPageNr;
     private int physicalPageNr;
-    private Time enterTime;
+    private LocalTime enterTime;
 
     public PageTableEntry(int index, int virtualPageNr, int physicalPageNr, boolean isMapped) {
         this.index = index;
@@ -14,9 +15,9 @@ public class PageTableEntry {
         this.physicalPageNr = physicalPageNr;
 
         if (isMapped) {
-            this.enterTime = new Time(System.currentTimeMillis());
+            this.enterTime = LocalTime.now().plusSeconds(index);
         } else {
-            this.enterTime = Time.valueOf("00:00:00");
+            this.enterTime = LocalTime.of(0, 0, 0);
         }
     }
 
@@ -36,11 +37,16 @@ public class PageTableEntry {
         this.index = index;
     }
 
-    public Time getEnterTime() {
+    public LocalTime getEnterTime() {
         return enterTime;
     }
 
-    public void setEnterTime(Time enterTime) {
+    public String getFormattedEnterTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return enterTime.format(formatter);
+    }
+
+    public void setEnterTime(LocalTime enterTime) {
         this.enterTime = enterTime;
     }
 

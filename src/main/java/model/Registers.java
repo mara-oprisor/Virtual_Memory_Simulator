@@ -1,13 +1,17 @@
 package model;
 
+import util.FileUtil;
+
 public class Registers {
     private final String[] values;
 
     public Registers() {
         this.values = new String[4];
         for (int i = 0; i < 4; i++) {
-            this.values[0] = "0x0";
+            this.values[i] = "0x0";
         }
+
+        FileUtil.writeToFile(FileUtil.formatRegisters(values), "registers.txt");
     }
 
     public String getRegisterValue(int registerIndex) {
@@ -24,5 +28,15 @@ public class Registers {
         }
 
         this.values[registerIndex] = value;
+    }
+
+    public void resetRegisters() {
+        for (int i = 0; i < 4; i++) {
+            this.values[i] = "0x0";
+        }
+    }
+
+    public String[] getValues() {
+        return values;
     }
 }

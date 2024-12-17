@@ -10,12 +10,14 @@ public class InterchangeDiskAndPhysMemState implements State {
     private List<String> dataFromDisk;
     private int physicalPageNr;
     private int virtualPageNr;
+    private String replacementPolicy;
 
-    public InterchangeDiskAndPhysMemState(int pageNrFromDisk, List<String> dataFromDisk, int physicalPageNr, int virtualPageNr) {
+    public InterchangeDiskAndPhysMemState(int pageNrFromDisk, List<String> dataFromDisk, int physicalPageNr, int virtualPageNr, String replacementPolicy) {
         this.pageNrFromDisk = pageNrFromDisk;
         this.dataFromDisk = dataFromDisk;
         this.physicalPageNr = physicalPageNr;
         this.virtualPageNr = virtualPageNr;
+        this.replacementPolicy = replacementPolicy;
     }
 
     public void execute(UIController context) {
@@ -24,7 +26,11 @@ public class InterchangeDiskAndPhysMemState implements State {
 
         List<String> dataToBeReplaced = context.getSimulationManager().getValuesFromPhysicalMemory(physicalPageNr);
         context.getReplacementManager().changeDataFromDisk(pageNrFromDisk, virtualPageNr, dataToBeReplaced);
-        context.getReplacementManager().changeDataFromPhysMem(physicalPageNr, dataFromDisk, pageNrFromDisk, virtualPageNr);
+        context.getReplacementManager().changeDataFromPhysMem(physicalPageNr, dataFromDisk, pageNrFromDisk, virtualPageNr, replacementPolicy);
+
+        if (replacementPolicy.equals("FIFO")) {
+            context.getReplacementManager().updateTLB();
+        }
 
         context.fillPageTable();
         context.fillPhysicalMemoryTable();

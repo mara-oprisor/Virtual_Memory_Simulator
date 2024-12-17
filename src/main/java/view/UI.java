@@ -7,12 +7,12 @@ import java.awt.*;
 public class UI extends JFrame {
     private final JPanel titlePanel = new JPanel(new BorderLayout());
     private final JPanel contentPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-    private final JPanel configPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+    private final JPanel configPanel = new JPanel(new GridLayout(6, 2, 5, 5));
     private final JTextField physicalMemSizeField = new JTextField("6");
     private final JTextField offsetBitsField = new JTextField("2");
     private final JTextField virtualMemSizeField = new JTextField("8");
     private final JTextField tlbEntriesField = new JTextField("5");
-    private final JButton validateButton = new JButton("Validate Inputs");
+    private final JComboBox<String> replacementPolicy = new JComboBox<>(new String[]{"LRU", "FIFO"});
     private final JButton startButton = new JButton("Start Simulation");
     private final JPanel addressPanel = new JPanel(new GridLayout(2, 1, 5, 5));
     private final JTextField virtualAddressHex = new JTextField();
@@ -23,7 +23,7 @@ public class UI extends JFrame {
     private final JTextField physicalOffset = new JTextField();
     private final JPanel scenariosPanel = new JPanel(new GridBagLayout());
     private final JPanel loadInstructionPanel = new JPanel(new BorderLayout());
-    private final JComboBox<String> scenarioComboBox = new JComboBox<>(new String[]{"Find in TLB", "Find in PageTable", "Find on Disk"});
+    private final JComboBox<String> scenarioComboBox = new JComboBox<>(new String[]{"Simple Load&Store", "Find in TLB", "Find in PageTable", "Find on Disk", "Mix of Operations"});
     private final JButton seeScenario = new JButton("See Instructions");
     private final JPanel tlbPanel = new JPanel(new BorderLayout());
     private final String[] tlbColumnNames = {"Index", "Virtual Page Number", "Physical Page Number"};
@@ -89,16 +89,18 @@ public class UI extends JFrame {
 
     private void createConfigurationPanel() {
         configPanel.setBorder(BorderFactory.createTitledBorder("Simulation Configuration"));
-        configPanel.add(new JLabel("Virtual Memory Size (in bits)"));
+        configPanel.add(new JLabel("Virtual Address Size (in bits)"));
         configPanel.add(virtualMemSizeField);
-        configPanel.add(new JLabel("Physical Memory Size (in bits)"));
+        configPanel.add(new JLabel("Physical Address Size (in bits)"));
         configPanel.add(physicalMemSizeField);
         configPanel.add(new JLabel("Number of Offset Bits"));
         configPanel.add(offsetBitsField);
         configPanel.add(new JLabel("Number of TLB Entries"));
         configPanel.add(tlbEntriesField);
+        configPanel.add(new JLabel("Replacement Policy"));
+        configPanel.add(replacementPolicy);
 
-        configPanel.add(validateButton);
+        configPanel.add(new JLabel(""));
         configPanel.add(startButton);
     }
 
@@ -306,10 +308,6 @@ public class UI extends JFrame {
         return tlbEntriesField;
     }
 
-    public JButton getValidateButton() {
-        return validateButton;
-    }
-
     public JButton getStartButton() {
         return startButton;
     }
@@ -376,5 +374,9 @@ public class UI extends JFrame {
 
     public JTextField getPhysicalOffset() {
         return physicalOffset;
+    }
+
+    public JComboBox<String> getReplacementPolicy() {
+        return replacementPolicy;
     }
 }

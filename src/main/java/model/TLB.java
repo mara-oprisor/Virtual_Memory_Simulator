@@ -1,13 +1,12 @@
 package model;
 
-import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TLB {
     private final int nrOfEntries;
-    private final List<PageTableEntry> entries;
+    private List<PageTableEntry> entries;
 
     public TLB(int nrOfEntries) {
         this.nrOfEntries = nrOfEntries;
@@ -39,10 +38,10 @@ public class TLB {
     }
 
     public Object[] getLRUEntry() {
-        Time lruTime = new Time(Long.MAX_VALUE);
+        LocalTime lruTime = LocalTime.MAX;
         int indexLRU = -1;
         for (int i = 0; i < nrOfEntries; i++) {
-            if (lruTime.after(entries.get(i).getEnterTime())) {
+            if (entries.get(i).getEnterTime().isBefore(lruTime)) {
                 lruTime = entries.get(i).getEnterTime();
                 indexLRU = i;
             }
@@ -56,9 +55,24 @@ public class TLB {
     public void updateTimeStamp(int pageNr) {
         for (int i = 0; i < nrOfEntries; i++) {
             if (entries.get(i).getVirtualPageNr() == pageNr) {
-                entries.get(i).setEnterTime(new Time(System.currentTimeMillis()));
+                entries.get(i).setEnterTime(LocalTime.now());
             }
         }
+    }
+
+    public void updateFIFO(List<PageTableEntry> pageTableEntries) {
+        int i = 1;
+        List<PageTableEntry> newEntries = new ArrayList<>();
+        for (PageTableEntry entry : pageTableEntries) {
+            if (i <= nrOfEntries) {
+                if (entry.getPhysicalPageNr() != -1) {
+                    entry.setIndex(i++);
+                    newEntries.add(entry);
+                }
+            }
+        }
+
+        this.entries = newEntries;
     }
 
     public List<PageTableEntry> getEntries() {
